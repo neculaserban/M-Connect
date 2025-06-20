@@ -1,0 +1,5 @@
+/* 
+  This file is now unused. 
+  Product data is fetched from the online JSON in Catalogue.tsx.
+  You may safely delete this file if you wish.
+*/

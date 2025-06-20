@@ -1,0 +1,12 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  background: #18181b;
+  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+  letter-spacing: 0.01em;
+  min-height: 100vh;
+  /* Remove background gradient, handled by App background now */
+  overflow-x: hidden;
+}
