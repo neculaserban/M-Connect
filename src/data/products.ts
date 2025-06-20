@@ -1,5 +1,7 @@
-/* 
-  This file is now unused. 
-  Product data is fetched from the online JSON in Catalogue.tsx.
-  You may safely delete this file if you wish.
-*/
+export type Product = {
+  id: string
+  name: string
+  description: string
+  image: string
+  features: Record<string, string>
+}
