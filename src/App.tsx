@@ -78,7 +78,7 @@ function App() {
           <b>Error:</b> {error || loginError}
         </div>
         <div className="mt-2 text-xs text-neutral-400">
-          Please check your Google Sheet sharing settings (should be "Anyone with the link can view") and that your API key is valid and enabled for Google Sheets API.
+          Please check your data
         </div>
       </div>
     )
@@ -125,7 +125,7 @@ function App() {
         </div>
       </main>
       <footer className="py-6 text-center text-neutral-300 text-xs border-t border-white/10 bg-white/5 backdrop-blur-md font-semibold tracking-wide relative z-10">
-        Notice: This app is currently in beta testing. Please do not share it or its content outside of the EU SDA team until we receive approval for go-to-market.
+        Notice: This app is currently in beta testing. Please do not share it or its content outside of the EU SDA team.
       </footer>
     </div>
   )

@@ -33,10 +33,10 @@ export default function Catalogue({ onSelect, selected, products }: Props) {
     <section className="relative py-4 px-1">
       <div className="relative z-10">
         <h2 className="text-2xl font-extrabold mb-1 text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-violet-400 tracking-tight text-center drop-shadow-[0_2px_8px_rgba(16,185,129,0.15)]">
-          CMS Competitive Matrix v25.2
+          CMS Competitive Matrix v25.3
         </h2>
         <div className="text-xs text-neutral-300 text-center mb-4 font-medium tracking-wide">
-          Madrid EU meeting
+          Disclaimer: Competition details are subject to change and may not reflect the most current information.
         </div>
         <div className="flex flex-col gap-3 items-center max-w-5xl mx-auto bg-white/10 border border-white/20 rounded-2xl shadow-xl p-3 sm:p-4 md:p-6 backdrop-blur-md">
           {[firstRow, secondRow].map((row, rowIdx) => (

@@ -35,7 +35,7 @@ export default function LoginForm({ users, onLogin }: Props) {
       className="max-w-xs mx-auto mt-16 bg-white/10 border border-white/20 rounded-xl shadow-lg p-6 flex flex-col gap-4 backdrop-blur-md"
     >
       <h2 className="text-lg font-bold text-center text-neutral-100 mb-2">
-        Login to Access Comparison
+        Login to Access Comparison Matrix
       </h2>
       <input
         className="px-3 py-2 rounded bg-white/20 text-neutral-100 border border-white/10 focus:outline-none focus:ring-2 focus:ring-emerald-400"
