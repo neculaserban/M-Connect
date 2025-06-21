@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react'
 import Catalogue from './components/Catalogue'
 import Compare from './components/Compare'
+import LoginForm from './components/LoginForm'
 import { Product } from './data/products'
 import { fetchProducts, ProductsAndFeatures } from './data/fetchProducts'
+import { fetchUsers, User } from './data/fetchUsers'
 
 function App() {
   const [products, setProducts] = useState<Product[]>([])
@@ -10,6 +12,12 @@ function App() {
   const [selected, setSelected] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+
+  // Login state
+  const [users, setUsers] = useState<User[]>([])
+  const [userLoading, setUserLoading] = useState(true)
+  const [loginError, setLoginError] = useState<string | null>(null)
+  const [loggedInUser, setLoggedInUser] = useState<string | null>(null)
 
   useEffect(() => {
     setLoading(true)
@@ -21,6 +29,15 @@ function App() {
       })
       .catch(e => setError(e.message))
       .finally(() => setLoading(false))
+  }, [])
+
+  useEffect(() => {
+    setUserLoading(true)
+    setLoginError(null)
+    fetchUsers()
+      .then(setUsers)
+      .catch(e => setLoginError(e.message))
+      .finally(() => setUserLoading(false))
   }, [])
 
   const handleSelect = (product: Product) => {
@@ -37,19 +54,28 @@ function App() {
     setSelected((prev) => prev.filter((p) => p.id !== id))
   }
 
-  if (loading) {
+  const handleLogin = (username: string) => {
+    setLoggedInUser(username)
+  }
+
+  const handleLogout = () => {
+    setLoggedInUser(null)
+    setSelected([])
+  }
+
+  if (loading || userLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center text-xl text-neutral-200">
-        Loading products...
+        Loading...
       </div>
     )
   }
 
-  if (error) {
+  if (error || loginError) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center text-red-400 text-lg">
         <div>
-          <b>Error:</b> {error}
+          <b>Error:</b> {error || loginError}
         </div>
         <div className="mt-2 text-xs text-neutral-400">
           Please check your Google Sheet sharing settings (should be "Anyone with the link can view") and that your API key is valid and enabled for Google Sheets API.
@@ -78,7 +104,24 @@ function App() {
             selected={selected}
             products={products}
           />
-          <Compare products={selected} onRemove={handleRemove} featureKeys={featureKeys} />
+          {!loggedInUser ? (
+            <LoginForm users={users} onLogin={handleLogin} />
+          ) : (
+            <>
+              <div className="flex justify-end items-center mb-2">
+                <span className="text-neutral-200 text-xs mr-2">
+                  Logged in as <b>{loggedInUser}</b>
+                </span>
+                <button
+                  className="text-xs px-3 py-1 rounded bg-white/10 border border-white/20 text-neutral-300 hover:bg-emerald-500 hover:text-white transition"
+                  onClick={handleLogout}
+                >
+                  Logout
+                </button>
+              </div>
+              <Compare products={selected} onRemove={handleRemove} featureKeys={featureKeys} />
+            </>
+          )}
         </div>
       </main>
       <footer className="py-6 text-center text-neutral-300 text-xs border-t border-white/10 bg-white/5 backdrop-blur-md font-semibold tracking-wide relative z-10">
