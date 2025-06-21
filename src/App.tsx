@@ -99,26 +99,31 @@ function App() {
       />
       <main className="flex-1 w-full relative z-10">
         <div className="max-w-6xl mx-auto w-full">
-          <Catalogue
-            onSelect={handleSelect}
-            selected={selected}
-            products={products}
-          />
+          {/* Login section always on top */}
           {!loggedInUser ? (
             <LoginForm users={users} onLogin={handleLogin} />
           ) : (
+            <div className="flex justify-end items-center mb-2">
+              <span className="text-neutral-200 text-xs mr-2">
+                Logged in as <b>{loggedInUser}</b>
+              </span>
+              <button
+                className="text-xs px-3 py-1 rounded bg-white/10 border border-white/20 text-neutral-300 hover:bg-emerald-500 hover:text-white transition"
+                onClick={handleLogout}
+              >
+                Logout
+              </button>
+            </div>
+          )}
+
+          {/* Only show catalogue and compare after login */}
+          {loggedInUser && (
             <>
-              <div className="flex justify-end items-center mb-2">
-                <span className="text-neutral-200 text-xs mr-2">
-                  Logged in as <b>{loggedInUser}</b>
-                </span>
-                <button
-                  className="text-xs px-3 py-1 rounded bg-white/10 border border-white/20 text-neutral-300 hover:bg-emerald-500 hover:text-white transition"
-                  onClick={handleLogout}
-                >
-                  Logout
-                </button>
-              </div>
+              <Catalogue
+                onSelect={handleSelect}
+                selected={selected}
+                products={products}
+              />
               <Compare products={selected} onRemove={handleRemove} featureKeys={featureKeys} />
             </>
           )}
