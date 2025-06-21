@@ -130,7 +130,7 @@ function App() {
         </div>
       </main>
       <footer className="py-6 text-center text-neutral-300 text-xs border-t border-white/10 bg-white/5 backdrop-blur-md font-semibold tracking-wide relative z-10">
-        Notice: This app is currently in beta testing. Please do not share it or its content outside of the EU SDA team.
+        Notice: This app is currently in beta testing. Please do not share it or its content outside of the SEEU and EU SDA teams.
       </footer>
     </div>
   )
