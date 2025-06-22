@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect } from 'react'
 import Catalogue from './components/Catalogue'
 import Compare from './components/Compare'
 import LoginForm from './components/LoginForm'
@@ -7,9 +7,10 @@ import { fetchProducts, ProductsAndFeatures } from './data/fetchProducts'
 import { fetchUsers, User } from './data/fetchUsers'
 import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom'
 import SpecConf from './SpecConf'
+import { useAutoLogout } from './hooks/useAutoLogout'
 
 const LOGIN_KEY = 'mconnect_logged_in_user'
-const AUTO_LOGOUT_MS = 30 * 1000
+const AUTO_LOGOUT_MS = 10 * 60 * 1000; // 10 minutes
 
 function MainApp() {
   const [products, setProducts] = useState<Product[]>([])
@@ -29,7 +30,6 @@ function MainApp() {
   const [autoLoggedOut, setAutoLoggedOut] = useState(false)
 
   const navigate = useNavigate()
-  const logoutTimer = useRef<NodeJS.Timeout | null>(null)
 
   useEffect(() => {
     setLoading(true)
@@ -61,35 +61,17 @@ function MainApp() {
     }
   }, [loggedInUser])
 
-  // Auto logoff logic
-  useEffect(() => {
-    if (!loggedInUser) return
-
-    const resetTimer = () => {
-      if (logoutTimer.current) clearTimeout(logoutTimer.current)
-      logoutTimer.current = setTimeout(() => {
-        setLoggedInUser(null)
-        setSelected([])
-        setAutoLoggedOut(true)
-        navigate('/')
-      }, AUTO_LOGOUT_MS)
-    }
-
-    // Listen to user activity
-    const events = ['mousemove', 'keydown', 'mousedown', 'touchstart']
-    events.forEach(event =>
-      window.addEventListener(event, resetTimer, { passive: true })
-    )
-    resetTimer()
-
-    return () => {
-      if (logoutTimer.current) clearTimeout(logoutTimer.current)
-      events.forEach(event =>
-        window.removeEventListener(event, resetTimer)
-      )
-    }
-    // eslint-disable-next-line
-  }, [loggedInUser, navigate])
+  // Auto logoff logic (moved to hook)
+  useAutoLogout({
+    isLoggedIn: !!loggedInUser,
+    onLogout: () => {
+      setLoggedInUser(null)
+      setSelected([])
+      navigate('/')
+    },
+    timeoutMs: AUTO_LOGOUT_MS,
+    onAutoLoggedOut: () => setAutoLoggedOut(true),
+  })
 
   // Hide auto logoff message after a few seconds
   useEffect(() => {

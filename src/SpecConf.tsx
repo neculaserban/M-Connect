@@ -1,13 +1,39 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useAutoLogout } from './hooks/useAutoLogout'
 
 const LOGIN_KEY = 'mconnect_logged_in_user'
+const AUTO_LOGOUT_MS = 10 * 60 * 1000; // 10 minutes
 
 export default function SpecConf() {
   const navigate = useNavigate()
-  const loggedInUser = localStorage.getItem(LOGIN_KEY)
+  const [autoLoggedOut, setAutoLoggedOut] = useState(false)
+  const [loggedInUser, setLoggedInUser] = useState<string | null>(() => {
+    return localStorage.getItem(LOGIN_KEY)
+  })
+
+  // Auto logoff logic
+  useAutoLogout({
+    isLoggedIn: !!loggedInUser,
+    onLogout: () => {
+      setLoggedInUser(null)
+      localStorage.removeItem(LOGIN_KEY)
+      navigate('/')
+    },
+    timeoutMs: AUTO_LOGOUT_MS,
+    onAutoLoggedOut: () => setAutoLoggedOut(true),
+  })
+
+  // Hide auto logoff message after a few seconds
+  useEffect(() => {
+    if (autoLoggedOut) {
+      const t = setTimeout(() => setAutoLoggedOut(false), 4000)
+      return () => clearTimeout(t)
+    }
+  }, [autoLoggedOut])
 
   const handleLogout = () => {
+    setLoggedInUser(null)
     localStorage.removeItem(LOGIN_KEY)
     navigate('/')
   }
@@ -49,6 +75,13 @@ export default function SpecConf() {
           </div>
         )}
       </div>
+
+      {/* Auto logoff message */}
+      {autoLoggedOut && (
+        <div className="mb-4 text-center text-red-400 text-sm font-semibold bg-white/10 border border-red-400/30 rounded-lg py-2 px-4 shadow">
+          You have been automatically logged off due to inactivity.
+        </div>
+      )}
 
       {/* Main Container */}
       <div className="w-full max-w-6xl bg-white/10 border border-white/20 rounded-2xl shadow-xl p-6 pt-16 backdrop-blur-md relative z-10 mt-4">
