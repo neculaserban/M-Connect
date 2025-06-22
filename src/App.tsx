@@ -150,7 +150,7 @@ function MainApp() {
                   className="text-xs px-3 py-1 rounded bg-emerald-500 border border-emerald-600 text-white font-semibold hover:bg-emerald-600 transition"
                   onClick={() => navigate('/specconf')}
                 >
-                  M-Connect Specification Generator
+                  M-Connect Specs Builder
                 </button>
               </div>
               <div className="flex items-center">
