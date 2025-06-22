@@ -5,8 +5,12 @@ import LoginForm from './components/LoginForm'
 import { Product } from './data/products'
 import { fetchProducts, ProductsAndFeatures } from './data/fetchProducts'
 import { fetchUsers, User } from './data/fetchUsers'
+import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom'
+import SpecConf from './SpecConf'
 
-function App() {
+const LOGIN_KEY = 'mconnect_logged_in_user'
+
+function MainApp() {
   const [products, setProducts] = useState<Product[]>([])
   const [featureKeys, setFeatureKeys] = useState<string[]>([])
   const [selected, setSelected] = useState<Product[]>([])
@@ -17,7 +21,12 @@ function App() {
   const [users, setUsers] = useState<User[]>([])
   const [userLoading, setUserLoading] = useState(true)
   const [loginError, setLoginError] = useState<string | null>(null)
-  const [loggedInUser, setLoggedInUser] = useState<string | null>(null)
+  const [loggedInUser, setLoggedInUser] = useState<string | null>(() => {
+    // Try to restore from localStorage
+    return localStorage.getItem(LOGIN_KEY)
+  })
+
+  const navigate = useNavigate()
 
   useEffect(() => {
     setLoading(true)
@@ -40,6 +49,15 @@ function App() {
       .finally(() => setUserLoading(false))
   }, [])
 
+  // Persist login state to localStorage
+  useEffect(() => {
+    if (loggedInUser) {
+      localStorage.setItem(LOGIN_KEY, loggedInUser)
+    } else {
+      localStorage.removeItem(LOGIN_KEY)
+    }
+  }, [loggedInUser])
+
   const handleSelect = (product: Product) => {
     setSelected((prev) => {
       if (prev.some((p) => p.id === product.id)) {
@@ -61,6 +79,7 @@ function App() {
   const handleLogout = () => {
     setLoggedInUser(null)
     setSelected([])
+    navigate('/')
   }
 
   if (loading || userLoading) {
@@ -99,25 +118,35 @@ function App() {
       />
       <main className="flex-1 w-full relative z-10">
         <div className="max-w-6xl mx-auto w-full">
+          {/* Top bar with Spec Generator button and login info */}
+          {loggedInUser && (
+            <div className="flex justify-between items-center mb-2">
+              <div>
+                <button
+                  className="text-xs px-3 py-1 rounded bg-emerald-500 border border-emerald-600 text-white font-semibold hover:bg-emerald-600 transition"
+                  onClick={() => navigate('/specconf')}
+                >
+                  M-Connect Specification Generator
+                </button>
+              </div>
+              <div className="flex items-center">
+                <span className="text-neutral-200 text-xs mr-2">
+                  Logged in as <b>{loggedInUser}</b>
+                </span>
+                <button
+                  className="text-xs px-3 py-1 rounded bg-white/10 border border-white/20 text-neutral-300 hover:bg-emerald-500 hover:text-white transition"
+                  onClick={handleLogout}
+                >
+                  Logout
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* Login section always on top */}
           {!loggedInUser ? (
             <LoginForm users={users} onLogin={handleLogin} />
           ) : (
-            <div className="flex justify-end items-center mb-2">
-              <span className="text-neutral-200 text-xs mr-2">
-                Logged in as <b>{loggedInUser}</b>
-              </span>
-              <button
-                className="text-xs px-3 py-1 rounded bg-white/10 border border-white/20 text-neutral-300 hover:bg-emerald-500 hover:text-white transition"
-                onClick={handleLogout}
-              >
-                Logout
-              </button>
-            </div>
-          )}
-
-          {/* Only show catalogue and compare after login */}
-          {loggedInUser && (
             <>
               <Catalogue
                 onSelect={handleSelect}
@@ -130,10 +159,19 @@ function App() {
         </div>
       </main>
       <footer className="py-6 text-center text-neutral-300 text-xs border-t border-white/10 bg-white/5 backdrop-blur-md font-semibold tracking-wide relative z-10">
-        Notice: This app is currently in beta testing. Please do not share it or its content outside of the SEEU and EU SDA teams.
+        Notice: This app is currently in beta testing. Please do not share it or its content outside of the EU SDA team.
       </footer>
     </div>
   )
 }
 
-export default App
+export default function App() {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<MainApp />} />
+        <Route path="/specconf" element={<SpecConf />} />
+      </Routes>
+    </Router>
+  )
+}
