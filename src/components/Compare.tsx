@@ -1,5 +1,6 @@
 import { Product } from '../data/products'
 import { X } from 'lucide-react'
+import React, { useRef, useEffect } from 'react'
 
 type Props = {
   products: Product[]
@@ -8,6 +9,36 @@ type Props = {
 }
 
 export default function Compare({ products, onRemove, featureKeys }: Props) {
+  const matrixRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const el = matrixRef.current
+    if (!el) return
+
+    // Prevent right-click context menu
+    const handleContextMenu = (e: MouseEvent) => {
+      e.preventDefault()
+    }
+    // Prevent copy
+    const handleCopy = (e: ClipboardEvent) => {
+      e.preventDefault()
+    }
+    // Prevent selection via selectstart
+    const handleSelectStart = (e: Event) => {
+      e.preventDefault()
+    }
+
+    el.addEventListener('contextmenu', handleContextMenu)
+    el.addEventListener('copy', handleCopy)
+    el.addEventListener('selectstart', handleSelectStart)
+
+    return () => {
+      el.removeEventListener('contextmenu', handleContextMenu)
+      el.removeEventListener('copy', handleCopy)
+      el.removeEventListener('selectstart', handleSelectStart)
+    }
+  }, [])
+
   if (products.length < 2) return null
 
   // Use the full featureKeys list from the sheet for rows
@@ -16,7 +47,18 @@ export default function Compare({ products, onRemove, featureKeys }: Props) {
       <h2 className="text-xl font-extrabold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-violet-400 tracking-tight text-center drop-shadow-[0_2px_8px_rgba(16,185,129,0.15)]">
         Compare Products
       </h2>
-      <div className="overflow-x-auto rounded-2xl border border-white/20 bg-white/10 shadow-xl backdrop-blur-md">
+      <div
+        ref={matrixRef}
+        className="overflow-x-auto rounded-2xl border border-white/20 bg-white/10 shadow-xl backdrop-blur-md compare-matrix-no-select"
+        tabIndex={-1}
+        style={{
+          userSelect: 'none',
+          WebkitUserSelect: 'none',
+          MozUserSelect: 'none',
+          msUserSelect: 'none',
+        }}
+        aria-label="Comparison matrix (copying and selection disabled)"
+      >
         <table className="min-w-full border-separate border-spacing-y-1">
           <thead>
             <tr>
@@ -52,6 +94,15 @@ export default function Compare({ products, onRemove, featureKeys }: Props) {
           </tbody>
         </table>
       </div>
+      <style>{`
+        .compare-matrix-no-select, .compare-matrix-no-select * {
+          user-select: none !important;
+          -webkit-user-select: none !important;
+          -moz-user-select: none !important;
+          -ms-user-select: none !important;
+          pointer-events: auto;
+        }
+      `}</style>
     </section>
   )
 }
