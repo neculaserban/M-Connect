@@ -8,6 +8,7 @@ import { fetchUsers, User } from './data/fetchUsers'
 import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom'
 import SpecConf from './SpecConf'
 import { useAutoLogout } from './hooks/useAutoLogout'
+import { Analytics } from '@vercel/analytics/react'
 
 const LOGIN_KEY = 'mconnect_logged_in_user'
 const AUTO_LOGOUT_MS = 10 * 60 * 1000; // 10 minutes
@@ -192,6 +193,7 @@ function MainApp() {
       <footer className="py-6 text-center text-neutral-300 text-xs border-t border-white/10 bg-white/5 backdrop-blur-md font-semibold tracking-wide relative z-10">
         Notice: This app is currently in beta testing. Please do not share it or its content outside of the EU SDA team.
       </footer>
+      <Analytics />
     </div>
   )
 }
