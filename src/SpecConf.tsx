@@ -1,20 +1,57 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
 
+const LOGIN_KEY = 'mconnect_logged_in_user'
+
 export default function SpecConf() {
   const navigate = useNavigate()
+  const loggedInUser = localStorage.getItem(LOGIN_KEY)
+
+  const handleLogout = () => {
+    localStorage.removeItem(LOGIN_KEY)
+    navigate('/')
+  }
+
   return (
-    <div className="min-h-screen bg-[#18181b] flex flex-col items-center py-8 relative">
-      {/* Back Button */}
-      <button
-        className="absolute top-4 left-4 px-4 py-2 rounded bg-emerald-500 border border-emerald-600 text-white font-semibold hover:bg-emerald-600 transition text-xs shadow z-20"
-        onClick={() => navigate('/')}
-      >
-        &larr; Back to Comparison Matrix
-      </button>
+    <div className="min-h-screen flex flex-col items-center py-8 relative overflow-x-hidden">
+      {/* Animated GIF background */}
+      <div
+        aria-hidden="true"
+        className="fixed inset-0 z-0 pointer-events-none"
+        style={{
+          background: `url('https://www.mindray.com/content/dam/xpace/en/products-solutions/products/patient-monitoring/centralized-mornitoring/benevision-cms/p12-s3.gif') center center / cover no-repeat`,
+          opacity: 0.18,
+          filter: 'blur(2.5px) brightness(0.7) saturate(1.2)',
+          willChange: 'opacity, filter',
+        }}
+      />
+      {/* Top bar */}
+      <div className="w-full max-w-6xl mx-auto flex justify-between items-center px-4 py-2 z-20 relative">
+        {/* Left: Back Button */}
+        <button
+          className="px-4 py-2 rounded bg-emerald-500 border border-emerald-600 text-white font-semibold hover:bg-emerald-600 transition text-xs shadow"
+          onClick={() => navigate('/')}
+        >
+          &larr; Back to Comparison Matrix
+        </button>
+        {/* Right: Logged in as and Logout */}
+        {loggedInUser && (
+          <div className="flex items-center">
+            <span className="text-neutral-200 text-xs mr-2">
+              Logged in as <b>{loggedInUser}</b>
+            </span>
+            <button
+              className="text-xs px-3 py-1 rounded bg-white/10 border border-white/20 text-neutral-300 hover:bg-emerald-500 hover:text-white transition"
+              onClick={handleLogout}
+            >
+              Logout
+            </button>
+          </div>
+        )}
+      </div>
 
       {/* Main Container */}
-      <div className="w-full max-w-6xl bg-white/10 border border-white/20 rounded-2xl shadow-xl p-6 pt-16 backdrop-blur-md relative z-10">
+      <div className="w-full max-w-6xl bg-white/10 border border-white/20 rounded-2xl shadow-xl p-6 pt-16 backdrop-blur-md relative z-10 mt-4">
         {/* M-Connect Solution Design */}
         <div className="border border-white/20 rounded-xl bg-white/5 mb-6">
           <div className="bg-gradient-to-r from-emerald-400/20 to-violet-400/20 text-neutral-100 font-extrabold text-lg px-4 py-2 rounded-t-xl tracking-tight border-b border-white/10">
