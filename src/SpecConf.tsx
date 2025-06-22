@@ -52,22 +52,34 @@ export default function SpecConf() {
         }}
       />
       {/* Top bar */}
-      <div className="w-full max-w-6xl mx-auto flex justify-between items-center px-4 py-2 z-20 relative">
+      <div className="w-full max-w-6xl mx-auto flex justify-between items-center px-2 sm:px-4 py-2 z-20 relative">
         {/* Left: Back Button */}
         <button
-          className="px-4 py-2 rounded bg-emerald-500 border border-emerald-600 text-white font-semibold hover:bg-emerald-600 transition text-xs shadow"
+          className="px-2 py-1 sm:px-4 sm:py-2 rounded bg-emerald-500 border border-emerald-600 text-white font-semibold hover:bg-emerald-600 transition text-xs shadow
+            whitespace-nowrap
+            min-w-[36px] sm:min-w-[120px]
+            text-[13px] sm:text-xs
+            "
+          style={{
+            fontSize: '13px',
+            minWidth: '36px',
+            maxWidth: '90vw',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+          }}
           onClick={() => navigate('/')}
         >
-          &larr; Back to Comparison Matrix
+          <span className="hidden sm:inline">&larr; Back to Comparison Matrix</span>
+          <span className="inline sm:hidden">&larr; Back</span>
         </button>
         {/* Right: Logged in as and Logout */}
         {loggedInUser && (
-          <div className="flex items-center">
-            <span className="text-neutral-200 text-xs mr-2">
+          <div className="flex items-center ml-2 sm:ml-0">
+            <span className="text-neutral-200 text-xs mr-2 whitespace-nowrap">
               Logged in as <b>{loggedInUser}</b>
             </span>
             <button
-              className="text-xs px-3 py-1 rounded bg-white/10 border border-white/20 text-neutral-300 hover:bg-emerald-500 hover:text-white transition"
+              className="text-xs px-2 py-1 sm:px-3 sm:py-1 rounded bg-white/10 border border-white/20 text-neutral-300 hover:bg-emerald-500 hover:text-white transition"
               onClick={handleLogout}
             >
               Logout
