@@ -7,6 +7,7 @@ import { fetchProducts, ProductsAndFeatures } from './data/fetchProducts'
 import { fetchUsers, User } from './data/fetchUsers'
 import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom'
 import SpecConf from './SpecConf'
+import ValueProp from './ValueProp'
 import { useAutoLogout } from './hooks/useAutoLogout'
 import { Analytics } from '@vercel/analytics/react'
 
@@ -143,15 +144,21 @@ function MainApp() {
       />
       <main className="flex-1 w-full relative z-10">
         <div className="max-w-6xl mx-auto w-full">
-          {/* Top bar with Spec Generator button and login info */}
+          {/* Top bar with Spec Generator button, Value Proposition button, and login info */}
           {loggedInUser && (
             <div className="flex justify-between items-center mb-2">
-              <div>
+              <div className="flex gap-2">
                 <button
                   className="text-xs px-3 py-1 rounded bg-emerald-500 border border-emerald-600 text-white font-semibold hover:bg-emerald-600 transition"
                   onClick={() => navigate('/specconf')}
                 >
-                  M-Connect Specs Builder
+                  Specs Builder
+                </button>
+                <button
+                  className="text-xs px-3 py-1 rounded bg-violet-500 border border-violet-600 text-white font-semibold hover:bg-violet-600 transition"
+                  onClick={() => navigate('/valueprop')}
+                >
+                  Value Proposition
                 </button>
               </div>
               <div className="flex items-center">
@@ -204,6 +211,7 @@ export default function App() {
       <Routes>
         <Route path="/" element={<MainApp />} />
         <Route path="/specconf" element={<SpecConf />} />
+        <Route path="/valueprop" element={<ValueProp />} />
       </Routes>
     </Router>
   )
