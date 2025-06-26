@@ -189,6 +189,8 @@ export default function SpecConf() {
   // Track selected features
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [showSpecs, setShowSpecs] = useState(false)
+  const [copySuccess, setCopySuccess] = useState(false)
+  const [copyError, setCopyError] = useState(false)
 
   // Fetch feature descriptions
   const { descs, loading: descLoading, error: descError } = useFeatureDescriptions()
@@ -236,7 +238,41 @@ export default function SpecConf() {
   const handleRefresh = () => {
     setSelected(new Set())
     setShowSpecs(false)
+    setCopySuccess(false)
+    setCopyError(false)
     window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  // Copy as 4-column table: Caracterisitici | Da | Nu | Observatii
+  const handleCopyDescriptions = async () => {
+    if (!selectedDescs.length) return
+    // Use tab-separated for best pasting into Excel/Word/Google Sheets
+    const header = 'Caracterisitici\tDa\tNu\tObservatii'
+    const rows = selectedDescs.map(d => `${d.description}\t\t\t`)
+    const text = [header, ...rows].join('\n')
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text)
+      } else {
+        // fallback for insecure context or unsupported browsers
+        const textarea = document.createElement('textarea')
+        textarea.value = text
+        textarea.style.position = 'fixed'
+        textarea.style.left = '-9999px'
+        document.body.appendChild(textarea)
+        textarea.focus()
+        textarea.select()
+        document.execCommand('copy')
+        document.body.removeChild(textarea)
+      }
+      setCopySuccess(true)
+      setCopyError(false)
+      setTimeout(() => setCopySuccess(false), 2000)
+    } catch {
+      setCopySuccess(false)
+      setCopyError(true)
+      setTimeout(() => setCopyError(false), 2000)
+    }
   }
 
   return (
@@ -341,35 +377,57 @@ export default function SpecConf() {
 
         {/* Specs Table */}
         {showSpecs && (
-          <div className="mt-8">
-            <h2 className="text-xl font-bold text-emerald-400 mb-4">Project Specifications Based on Selection</h2>
-            {selectedDescs.length === 0 ? (
-              <div className="text-neutral-300 text-sm">No descriptions found for selected features.</div>
-            ) : (
-              <table className="min-w-full border border-white/20 rounded-xl bg-white/10 shadow-lg">
-                <thead>
-                  <tr>
-                    <th className="text-left px-4 py-2 text-emerald-300 text-xs font-bold">Configuration</th>
-                    <th className="text-left px-4 py-2 text-emerald-300 text-xs font-bold">Description</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {selectedDescs.map(d => (
-                    <tr key={d.name} className="border-t border-white/10">
-                      <td className="px-4 py-2 text-neutral-100 text-xs font-semibold">{d.name}</td>
-                      <td className="px-4 py-2 text-neutral-200 text-xs">{d.description}</td>
+          <div className="border border-white/20 rounded-xl bg-white/5 shadow-xl mt-8">
+            <div className="bg-gradient-to-r from-emerald-400/20 to-violet-400/20 text-neutral-100 font-extrabold text-lg px-4 py-2 rounded-t-xl tracking-tight border-b border-white/10">
+              Project Specifications Based on Selection
+            </div>
+            <div className="p-4">
+              {selectedDescs.length === 0 ? (
+                <div className="text-neutral-300 text-sm">No descriptions found for selected features.</div>
+              ) : (
+                <table className="min-w-full border border-white/20 rounded-xl bg-white/10 shadow-lg">
+                  <thead>
+                    <tr>
+                      <th className="text-left px-4 py-2 text-emerald-300 text-xs font-bold">Configuration</th>
+                      <th className="text-left px-4 py-2 text-emerald-300 text-xs font-bold">Description</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
-            <div className="flex justify-center mt-4">
-              <button
-                className="px-4 py-1 rounded bg-white/10 border border-white/20 text-neutral-300 hover:bg-emerald-500 hover:text-white transition text-xs"
-                onClick={handleRefresh}
-              >
-                Refresh
-              </button>
+                  </thead>
+                  <tbody>
+                    {selectedDescs.map(d => (
+                      <tr key={d.name} className="border-t border-white/10">
+                        <td className="px-4 py-2 text-neutral-100 text-xs font-semibold">{d.name}</td>
+                        <td className="px-4 py-2 text-neutral-200 text-xs">{d.description}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+              <div className="flex justify-center mt-4 gap-2">
+                <button
+                  className="px-4 py-1 rounded bg-white/10 border border-white/20 text-neutral-300 hover:bg-emerald-500 hover:text-white transition text-xs"
+                  onClick={handleRefresh}
+                >
+                  Refresh
+                </button>
+                <button
+                  className="px-4 py-1 rounded bg-emerald-500 border border-emerald-700 text-white hover:bg-emerald-600 transition text-xs font-semibold"
+                  onClick={handleCopyDescriptions}
+                  type="button"
+                >
+                  Copy Descriptions
+                </button>
+              </div>
+              {(copySuccess || copyError) && (
+                <div className={`mt-3 text-center text-xs font-semibold transition-all duration-300 ${
+                  copySuccess
+                    ? 'text-emerald-400 bg-white/10 border border-emerald-400/30 rounded-lg py-2 px-4 shadow'
+                    : 'text-red-400 bg-white/10 border border-red-400/30 rounded-lg py-2 px-4 shadow'
+                }`}>
+                  {copySuccess
+                    ? 'Descriptions copied as a table! You can now paste them into any document.'
+                    : 'Failed to copy. Please try again or check your browser permissions.'}
+                </div>
+              )}
             </div>
           </div>
         )}
