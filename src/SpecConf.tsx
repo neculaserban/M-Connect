@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAutoLogout } from './hooks/useAutoLogout'
 
@@ -8,21 +8,27 @@ const AUTO_LOGOUT_MS = 10 * 60 * 1000; // 10 minutes
 // Google Sheets config for feature descriptions
 const SHEET_ID = '1dhFmdv0UnDNYY1bVnjN8O8T4IMWSPDtUqGvgaC7b65s'
 const API_KEY = 'AIzaSyCwGp5jB-QIq6EcY-yDF1kYrXkhVmKy0_k'
-const DESC_RANGE = 'Sheet3!A1:C1000' // A: Section, B: Feature Name, C: Description
+const DESC_RANGE = 'Sheet3!A1:ZZ1000' // Fetch all columns
 
 type FeatureDesc = {
   section: string
   name: string
-  description: string
+  descriptions: { [lang: string]: string }
 }
 
 type GroupedFeatures = {
   [section: string]: FeatureDesc[]
 }
 
+type LanguageOption = {
+  key: string
+  label: string
+}
+
 function useFeatureDescriptions() {
   const [grouped, setGrouped] = useState<GroupedFeatures>({})
   const [allDescs, setAllDescs] = useState<FeatureDesc[]>([])
+  const [languages, setLanguages] = useState<LanguageOption[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -36,17 +42,36 @@ function useFeatureDescriptions() {
         if (!res.ok) throw new Error('Failed to fetch feature descriptions')
         const data = await res.json()
         const values: string[][] = data.values
-        // Assume first row is header: [Section, Feature Name, Description]
+        if (!values || values.length < 2) throw new Error('No data found in Sheet3')
+        // Header: [Section, Feature Name, Description English, Description Romanian, ...]
+        const header = values[0]
+        // Find language columns (start from index 2)
+        const langCols: { idx: number, key: string, label: string }[] = []
+        for (let i = 2; i < header.length; ++i) {
+          const col = header[i]
+          // Try to extract language code from header, fallback to column name
+          let key = col.match(/\(([^)]+)\)/)?.[1]?.trim().toLowerCase() || col.trim().toLowerCase()
+          let label = col.replace(/^Description\s*/i, '').replace(/[\(\)]/g, '').trim()
+          if (!label) label = key.toUpperCase()
+          langCols.push({ idx: i, key, label })
+        }
+        // Build language options for selector
+        const languageOptions: LanguageOption[] = langCols.map(l => ({
+          key: l.key,
+          label: l.label.charAt(0).toUpperCase() + l.label.slice(1)
+        }))
+        // Parse features
         const descs: FeatureDesc[] = []
         for (let i = 1; i < values.length; ++i) {
-          const [section, name, description] = values[i]
-          if (section && name && description) {
-            descs.push({
-              section: section.trim(),
-              name: name.trim(),
-              description: description.trim(),
-            })
+          const row = values[i]
+          const section = row[0]?.trim() || ''
+          const name = row[1]?.trim() || ''
+          if (!section || !name) continue
+          const descriptions: { [lang: string]: string } = {}
+          for (const lang of langCols) {
+            descriptions[lang.key] = row[lang.idx]?.trim() || ''
           }
+          descs.push({ section, name, descriptions })
         }
         // Group by section
         const grouped: GroupedFeatures = {}
@@ -56,6 +81,7 @@ function useFeatureDescriptions() {
         }
         setGrouped(grouped)
         setAllDescs(descs)
+        setLanguages(languageOptions)
       } catch (e: any) {
         setError(e.message || 'Unknown error')
       } finally {
@@ -65,7 +91,7 @@ function useFeatureDescriptions() {
     fetchDescs()
   }, [])
 
-  return { grouped, allDescs, loading, error }
+  return { grouped, allDescs, languages, loading, error }
 }
 
 export default function SpecConf() {
@@ -80,9 +106,32 @@ export default function SpecConf() {
   const [showSpecs, setShowSpecs] = useState(false)
   const [copySuccess, setCopySuccess] = useState(false)
   const [copyError, setCopyError] = useState(false)
+  const [selectedLang, setSelectedLang] = useState<string>('en')
+  const [dropdownOpen, setDropdownOpen] = useState(false)
+  const dropdownRef = useRef<HTMLDivElement>(null)
 
-  // Fetch grouped feature descriptions
-  const { grouped, allDescs, loading: descLoading, error: descError } = useFeatureDescriptions()
+  // Fetch grouped feature descriptions and languages
+  const { grouped, allDescs, languages, loading: descLoading, error: descError } = useFeatureDescriptions()
+
+  // Set default language to English if available
+  useEffect(() => {
+    if (languages.length > 0) {
+      const en = languages.find(l => l.key === 'en' || l.label.toLowerCase().includes('english'))
+      setSelectedLang(en?.key || languages[0].key)
+    }
+  }, [languages])
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    if (!dropdownOpen) return
+    function handleClick(e: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setDropdownOpen(false)
+      }
+    }
+    window.addEventListener('mousedown', handleClick)
+    return () => window.removeEventListener('mousedown', handleClick)
+  }, [dropdownOpen])
 
   // Auto logoff logic
   useAutoLogout({
@@ -137,7 +186,11 @@ export default function SpecConf() {
     if (!selectedDescs.length) return
     // Use tab-separated for best pasting into Excel/Word/Google Sheets
     const header = 'Caracterisitici\tDa\tNu\tObservatii'
-    const rows = selectedDescs.map(d => `${d.description}\t\t\t`)
+    const rows = selectedDescs.map(d => {
+      // Fallback to English if selectedLang is missing
+      const desc = d.descriptions[selectedLang] || d.descriptions['en'] || ''
+      return `${desc}\t\t\t`
+    })
     const text = [header, ...rows].join('\n')
     try {
       if (navigator.clipboard && window.isSecureContext) {
@@ -162,6 +215,13 @@ export default function SpecConf() {
       setCopyError(true)
       setTimeout(() => setCopyError(false), 2000)
     }
+  }
+
+  // Handle language select from dropdown and generate specs
+  const handleLangAndGenerate = (lang: string) => {
+    setSelectedLang(lang)
+    setShowSpecs(true)
+    setDropdownOpen(false)
   }
 
   return (
@@ -256,15 +316,47 @@ export default function SpecConf() {
           </div>
         </div>
 
-        {/* Generate Specs Button */}
+        {/* Generate Specs Button with Language Dropdown */}
         <div className="flex justify-center mt-6 mb-2">
-          <button
-            className="px-6 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-lg shadow border border-emerald-700 transition disabled:opacity-60"
-            onClick={() => setShowSpecs(true)}
-            disabled={selected.size === 0 || descLoading}
-          >
-            {descLoading ? 'Loading...' : 'Generate Specs'}
-          </button>
+          <div className="relative" ref={dropdownRef}>
+            <button
+              className="px-6 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-lg shadow border border-emerald-700 transition disabled:opacity-60 flex items-center gap-2"
+              onClick={() => setDropdownOpen(v => !v)}
+              disabled={selected.size === 0 || descLoading || languages.length === 0}
+              type="button"
+            >
+              {descLoading ? 'Loading...' : 'Generate Specs'}
+              <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+            {dropdownOpen && (
+              <div
+                className="absolute left-0 right-0 mt-2 z-30 rounded-xl border border-white/20 bg-white/80 shadow-xl backdrop-blur-md"
+                style={{
+                  minWidth: '180px',
+                  fontFamily: 'inherit',
+                }}
+              >
+                {languages.map(lang => (
+                  <button
+                    key={lang.key}
+                    className="w-full text-left px-4 py-2 text-sm font-semibold text-neutral-800 hover:bg-emerald-100 hover:text-emerald-700 rounded transition"
+                    style={{
+                      fontFamily: 'inherit',
+                      background: 'none',
+                      border: 'none',
+                      outline: 'none',
+                      cursor: 'pointer',
+                    }}
+                    onClick={() => handleLangAndGenerate(lang.key)}
+                  >
+                    {lang.label}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Error */}
@@ -293,7 +385,9 @@ export default function SpecConf() {
                     {selectedDescs.map(d => (
                       <tr key={d.name} className="border-t border-white/10">
                         <td className="px-4 py-2 text-neutral-100 text-xs font-semibold">{d.name}</td>
-                        <td className="px-4 py-2 text-neutral-200 text-xs">{d.description}</td>
+                        <td className="px-4 py-2 text-neutral-200 text-xs">
+                          {d.descriptions[selectedLang] || d.descriptions['en'] || ''}
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -329,6 +423,14 @@ export default function SpecConf() {
           </div>
         )}
       </div>
+      <style>{`
+        .specconf-dropdown {
+          font-family: inherit;
+        }
+        .specconf-dropdown button:focus {
+          outline: none;
+        }
+      `}</style>
     </div>
   )
 }
