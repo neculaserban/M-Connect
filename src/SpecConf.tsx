@@ -8,15 +8,21 @@ const AUTO_LOGOUT_MS = 10 * 60 * 1000; // 10 minutes
 // Google Sheets config for feature descriptions
 const SHEET_ID = '1dhFmdv0UnDNYY1bVnjN8O8T4IMWSPDtUqGvgaC7b65s'
 const API_KEY = 'AIzaSyCwGp5jB-QIq6EcY-yDF1kYrXkhVmKy0_k'
-const DESC_RANGE = 'Sheet3!A1:B1000' // A: Feature Name, B: Description
+const DESC_RANGE = 'Sheet3!A1:C1000' // A: Section, B: Feature Name, C: Description
 
 type FeatureDesc = {
+  section: string
   name: string
   description: string
 }
 
+type GroupedFeatures = {
+  [section: string]: FeatureDesc[]
+}
+
 function useFeatureDescriptions() {
-  const [descs, setDescs] = useState<FeatureDesc[]>([])
+  const [grouped, setGrouped] = useState<GroupedFeatures>({})
+  const [allDescs, setAllDescs] = useState<FeatureDesc[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -30,13 +36,26 @@ function useFeatureDescriptions() {
         if (!res.ok) throw new Error('Failed to fetch feature descriptions')
         const data = await res.json()
         const values: string[][] = data.values
-        // Assume first row is header: [Feature, Description]
+        // Assume first row is header: [Section, Feature Name, Description]
         const descs: FeatureDesc[] = []
         for (let i = 1; i < values.length; ++i) {
-          const [name, description] = values[i]
-          if (name && description) descs.push({ name: name.trim(), description: description.trim() })
+          const [section, name, description] = values[i]
+          if (section && name && description) {
+            descs.push({
+              section: section.trim(),
+              name: name.trim(),
+              description: description.trim(),
+            })
+          }
         }
-        setDescs(descs)
+        // Group by section
+        const grouped: GroupedFeatures = {}
+        for (const d of descs) {
+          if (!grouped[d.section]) grouped[d.section] = []
+          grouped[d.section].push(d)
+        }
+        setGrouped(grouped)
+        setAllDescs(descs)
       } catch (e: any) {
         setError(e.message || 'Unknown error')
       } finally {
@@ -46,138 +65,8 @@ function useFeatureDescriptions() {
     fetchDescs()
   }, [])
 
-  return { descs, loading, error }
+  return { grouped, allDescs, loading, error }
 }
-
-// All features in the UI, grouped by section
-const FEATURE_GROUPS = [
-  {
-    title: 'M-Connect Solution Design',
-    features: [
-      'CMS Server',
-      'CMS WorkStation',
-      'CMS ViewStation',
-      'CMS All-in-One',
-      'Integrated eGateway',
-      'Integrated MobileServer',
-      'Integrated MLDAP (LDAP 2000 users)',
-      'Upgrade of existing CMS',
-    ],
-  },
-  {
-    title: 'Type of Equipment',
-    features: [
-      'Support for Mindray Pumps (Hybrid CS)',
-      'Support for Mindray Spot Check Devices',
-      'Support for Mindray Mechanical Ventilators',
-      'Support for Mindray Anesthesia Machines',
-      'Support for Mindray Ultrasound Machines',
-      'Support Video Cameras (RTSP Stream)',
-    ],
-  },
-  {
-    title: 'Clinical Features',
-    features: [
-      '24h ECG summary',
-      'AF Summary',
-      'Ventricular Arrhythmia Summary',
-      'Oxygenation Summary',
-      'Continuous NIBP analysis',
-      'History 12 ECG Glasgow Analysis',
-      'HRV Summary',
-      'Early Warning Score',
-    ],
-  },
-  {
-    title: 'Operational',
-    features: [
-      'Support CMS Viewer',
-      'HIS Sync Patient',
-      'M-IoT Data Output and RM',
-      'McAfee Solidcore - security whitelist solution',
-    ],
-  },
-  {
-    title: 'Integrated eGateway',
-    features: [
-      'ADT + Result + Doc + ALM',
-      'ADT + Result + Doc + ALM + FD',
-      'ADT + Result + Doc + ALM + Order',
-      'ADT + Result + Doc + ALM + FD + Order',
-    ],
-  },
-  {
-    title: 'Standalone eGateway',
-    features: [
-      'Support ADT',
-      'Support Results',
-      'Support Alarms',
-      'Support Docs (reports) Sharing',
-      'High Resolution Waveform',
-      'Doctor Order Synchronization',
-      'History Data Forward',
-    ],
-  },
-  {
-    title: 'Standalone MobileViewer Server',
-    features: [
-      'Mobile Viewer Server - 64 beds',
-      'Mobile Viewer Server - 200 beds',
-      'Mobile Viewer Server - 600 beds',
-      'Mobile Viewer Server - 1200 beds',
-    ],
-  },
-  {
-    title: 'Standalone AlarmGUARD Server',
-    features: [
-      'AlarmGUARD Server - 8 beds',
-      'AlarmGUARD Server - 16 beds',
-      'AlarmGUARD Server - 32 beds',
-      'AlarmGUARD Server - 64 beds',
-      'AlarmGUARD Server - 128 beds',
-      'AlarmGUARD Server - 400 beds',
-      'AlarmGUARD Server - 600 beds',
-      'AlarmGUARD Server - 1200 beds',
-    ],
-  },
-  {
-    title: 'WebViewer Server',
-    features: [
-      'Web Server - 16 clients',
-      'Web Server - 64 clients',
-      'Web Server - 128 clients',
-    ],
-  },
-  {
-    title: 'WorkStation',
-    features: [
-      'WorkStation - 8 Beds',
-      'WorkStation - 16 Beds',
-      'WorkStation - 32 Beds',
-      'WorkStation - 64 Beds',
-    ],
-  },
-  {
-    title: 'ViewStation',
-    features: [
-      'ViewStation - 8 Beds',
-      'ViewStation - 16 Beds',
-      'ViewStation - 32 Beds',
-      'ViewStation - 64 Beds',
-    ],
-  },
-  {
-    title: 'Special Configs',
-    features: [
-      'WorkStation Lite - 8 beds',
-      'Redundant CentralStation - Cluster',
-      'Pumps only CentralStation',
-      'CentralStation Server - 4 beds',
-      'CentralStation Server - 1 beds (for DSA)',
-      'text test',
-    ],
-  },
-]
 
 export default function SpecConf() {
   const navigate = useNavigate()
@@ -186,14 +75,14 @@ export default function SpecConf() {
     return localStorage.getItem(LOGIN_KEY)
   })
 
-  // Track selected features
+  // Track selected features (by name)
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [showSpecs, setShowSpecs] = useState(false)
   const [copySuccess, setCopySuccess] = useState(false)
   const [copyError, setCopyError] = useState(false)
 
-  // Fetch feature descriptions
-  const { descs, loading: descLoading, error: descError } = useFeatureDescriptions()
+  // Fetch grouped feature descriptions
+  const { grouped, allDescs, loading: descLoading, error: descError } = useFeatureDescriptions()
 
   // Auto logoff logic
   useAutoLogout({
@@ -232,7 +121,7 @@ export default function SpecConf() {
   }
 
   // Get selected feature descriptions
-  const selectedDescs = descs.filter(d => selected.has(d.name))
+  const selectedDescs = allDescs.filter(d => selected.has(d.name))
 
   // Refresh handler: reset selection, close table, scroll to top
   const handleRefresh = () => {
@@ -340,20 +229,28 @@ export default function SpecConf() {
             M-Connect Specs Builder
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 px-4 py-6">
-            {FEATURE_GROUPS.map(group => (
-              <div key={group.title} className="flex flex-col gap-2">
-                <div className="font-bold text-emerald-300 text-xs mb-1">{group.title}</div>
-                {group.features.map(label => (
-                  <label key={label} className="flex items-center gap-2 text-neutral-200 text-xs font-medium whitespace-normal break-words overflow-hidden">
-                    <input
-                      type="checkbox"
-                      className="accent-emerald-500"
-                      checked={selected.has(label)}
-                      onChange={() => handleToggle(label)}
-                    />
-                    <span className="break-words">{label}</span>
-                  </label>
-                ))}
+            {Object.entries(grouped).map(([section, features]) => (
+              <div
+                key={section}
+                className="border border-white/20 rounded-xl bg-white/10 shadow flex flex-col mb-4"
+                style={{ minWidth: 0 }}
+              >
+                <div className="bg-gradient-to-r from-emerald-400/20 to-violet-400/20 text-neutral-100 font-bold text-base px-4 py-2 rounded-t-xl border-b border-white/10">
+                  {section}
+                </div>
+                <div className="flex flex-col gap-2 px-4 py-4">
+                  {features.map(d => (
+                    <label key={d.name} className="flex items-center gap-2 text-neutral-200 text-xs font-medium whitespace-normal break-words overflow-hidden">
+                      <input
+                        type="checkbox"
+                        className="accent-emerald-500"
+                        checked={selected.has(d.name)}
+                        onChange={() => handleToggle(d.name)}
+                      />
+                      <span className="break-words">{d.name}</span>
+                    </label>
+                  ))}
+                </div>
               </div>
             ))}
           </div>

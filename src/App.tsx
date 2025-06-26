@@ -158,7 +158,7 @@ function MainApp() {
                   className="text-xs px-3 py-1 rounded bg-violet-500 border border-violet-600 text-white font-semibold hover:bg-violet-600 transition"
                   onClick={() => navigate('/valueprop')}
                 >
-                  Value Proposition
+                  Value Pitch
                 </button>
               </div>
               <div className="flex items-center">
