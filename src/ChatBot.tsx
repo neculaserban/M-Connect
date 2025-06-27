@@ -104,7 +104,7 @@ export default function ChatBot() {
             Work in Progress
           </div>
           <div className="text-neutral-300 text-sm text-center max-w-md">
-            The Mindray ChatBot page is under construction. Please check back soon!
+            🚧 The Mindray ChatBot is getting ready behind the scenes. Check back soon for smart support!
           </div>
         </div>
       </div>

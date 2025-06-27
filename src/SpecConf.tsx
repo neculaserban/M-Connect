@@ -286,7 +286,7 @@ export default function SpecConf() {
         {/* Feature selection UI */}
         <div className="border border-white/20 rounded-xl bg-white/5 mb-6">
           <div className="bg-gradient-to-r from-emerald-400/20 to-violet-400/20 text-neutral-100 font-extrabold text-lg px-4 py-2 rounded-t-xl tracking-tight border-b border-white/10">
-            M-Connect Specs Builder
+            M-Connect Specification Generator
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 px-4 py-6">
             {Object.entries(grouped).map(([section, features]) => (

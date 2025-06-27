@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import Catalogue from './components/Catalogue'
 import Compare from './components/Compare'
 import LoginForm from './components/LoginForm'
@@ -34,6 +34,10 @@ function MainApp() {
   const [autoLoggedOut, setAutoLoggedOut] = useState(false)
 
   const navigate = useNavigate()
+
+  // Dropdown state for nav
+  const [navOpen, setNavOpen] = useState(false)
+  const navRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     setLoading(true)
@@ -85,6 +89,18 @@ function MainApp() {
     }
   }, [autoLoggedOut])
 
+  // Close nav dropdown on outside click
+  useEffect(() => {
+    if (!navOpen) return
+    function handleClick(e: MouseEvent) {
+      if (navRef.current && !navRef.current.contains(e.target as Node)) {
+        setNavOpen(false)
+      }
+    }
+    window.addEventListener('mousedown', handleClick)
+    return () => window.removeEventListener('mousedown', handleClick)
+  }, [navOpen])
+
   const handleSelect = (product: Product) => {
     setSelected((prev) => {
       if (prev.some((p) => p.id === product.id)) {
@@ -110,37 +126,65 @@ function MainApp() {
     navigate('/')
   }
 
-  // Responsive top-left nav buttons
-  const renderNavButtons = () => (
-    <div className="flex flex-wrap gap-2 items-center">
+  // Responsive top-left nav dropdown
+  const renderNavDropdown = () => (
+    <div className="relative" ref={navRef}>
       <button
-        className="text-xs px-3 py-1 rounded bg-cyan-500 border border-cyan-600 text-white font-semibold hover:bg-cyan-600 transition"
-        onClick={() => navigate('/comparison-matrix')}
+        className="flex items-center gap-2 px-2 py-1 rounded bg-white/10 border border-white/20 text-neutral-300 font-semibold shadow hover:bg-emerald-500 hover:text-white transition text-xs"
+        style={{
+          fontWeight: 600,
+          minHeight: '28px',
+          minWidth: '80px',
+          fontSize: '13px'
+        }}
+        onClick={() => setNavOpen(v => !v)}
         type="button"
+        aria-haspopup="menu"
+        aria-expanded={navOpen}
       >
-        Compatibility Matrix
+        <span className="text-base" style={{ fontWeight: 900, letterSpacing: '0.04em' }}>☰</span>
+        <span className="font-semibold tracking-wide">More</span>
       </button>
-      <button
-        className="text-xs px-3 py-1 rounded bg-emerald-500 border border-emerald-600 text-white font-semibold hover:bg-emerald-600 transition"
-        onClick={() => navigate('/specconf')}
-        type="button"
-      >
-        Specs Generator
-      </button>
-      <button
-        className="text-xs px-3 py-1 rounded bg-violet-500 border border-violet-600 text-white font-semibold hover:bg-violet-600 transition"
-        onClick={() => navigate('/valueprop')}
-        type="button"
-      >
-        Value Proposition
-      </button>
-      <button
-        className="text-xs px-3 py-1 rounded bg-fuchsia-500 border border-fuchsia-600 text-white font-semibold hover:bg-fuchsia-600 transition"
-        onClick={() => navigate('/chatbot')}
-        type="button"
-      >
-        ChatBot
-      </button>
+      {navOpen && (
+        <div
+          className="absolute left-0 mt-2 z-30 min-w-[160px] rounded-xl border border-white/20 bg-neutral-900/95 shadow-2xl backdrop-blur-md flex flex-col py-2 animate-fade-in"
+          style={{ fontFamily: 'inherit' }}
+        >
+          <button
+            className="w-full text-left px-4 py-2 text-xs font-semibold text-white hover:bg-emerald-500/20 hover:text-emerald-300 rounded transition"
+            onClick={() => { setNavOpen(false); navigate('/comparison-matrix') }}
+          >
+            Compatibility Matrix
+          </button>
+          <button
+            className="w-full text-left px-4 py-2 text-xs font-semibold text-white hover:bg-emerald-500/20 hover:text-emerald-300 rounded transition"
+            onClick={() => { setNavOpen(false); navigate('/specconf') }}
+          >
+            Specification Generator
+          </button>
+          <button
+            className="w-full text-left px-4 py-2 text-xs font-semibold text-white hover:bg-emerald-500/20 hover:text-emerald-300 rounded transition"
+            onClick={() => { setNavOpen(false); navigate('/valueprop') }}
+          >
+            Value Proposition
+          </button>
+          <button
+            className="w-full text-left px-4 py-2 text-xs font-semibold text-white hover:bg-emerald-500/20 hover:text-emerald-300 rounded transition"
+            onClick={() => { setNavOpen(false); navigate('/chatbot') }}
+          >
+            ChatBot (soon)
+          </button>
+        </div>
+      )}
+      <style>{`
+        @keyframes fade-in {
+          from { opacity: 0; transform: translateY(-8px);}
+          to { opacity: 1; transform: translateY(0);}
+        }
+        .animate-fade-in {
+          animation: fade-in 0.18s cubic-bezier(.4,2,.6,1);
+        }
+      `}</style>
     </div>
   )
 
@@ -180,16 +224,24 @@ function MainApp() {
       />
       <main className="flex-1 w-full relative z-10">
         <div className="max-w-6xl mx-auto w-full">
-          {/* Top bar with nav buttons and login info */}
+          {/* Top bar with nav dropdown and login info */}
           {loggedInUser && (
-            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-2 gap-2">
-              {renderNavButtons()}
+            <div className="flex flex-row justify-between items-center mb-2 gap-2 w-full">
+              {/* Left: More button */}
+              {renderNavDropdown()}
+              {/* Right: Logout */}
               <div className="flex items-center">
                 <span className="text-neutral-200 text-xs mr-2">
                   Logged in as <b>{loggedInUser}</b>
                 </span>
                 <button
-                  className="text-xs px-3 py-1 rounded bg-white/10 border border-white/20 text-neutral-300 hover:bg-emerald-500 hover:text-white transition"
+                  className="text-xs px-2 py-1 rounded bg-white/10 border border-white/20 text-neutral-300 font-semibold shadow hover:bg-emerald-500 hover:text-white transition"
+                  style={{
+                    fontWeight: 600,
+                    minHeight: '28px',
+                    minWidth: '80px',
+                    fontSize: '13px'
+                  }}
                   onClick={handleLogout}
                 >
                   Logout
