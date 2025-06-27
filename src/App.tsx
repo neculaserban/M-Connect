@@ -8,7 +8,7 @@ import { fetchUsers, User } from './data/fetchUsers'
 import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom'
 import SpecConf from './SpecConf'
 import ValueProp from './ValueProp'
-import ComparisonMatrix from './ComparisonMatrix'
+import CompatibilityMatrix from './CompatibilityMatrix'
 import ChatBot from './ChatBot'
 import { useAutoLogout } from './hooks/useAutoLogout'
 import { Analytics } from '@vercel/analytics/react'
@@ -118,7 +118,7 @@ function MainApp() {
         onClick={() => navigate('/comparison-matrix')}
         type="button"
       >
-        Comparison Matrix
+        Compatibility Matrix
       </button>
       <button
         className="text-xs px-3 py-1 rounded bg-emerald-500 border border-emerald-600 text-white font-semibold hover:bg-emerald-600 transition"
@@ -235,7 +235,7 @@ export default function App() {
         <Route path="/" element={<MainApp />} />
         <Route path="/specconf" element={<SpecConf />} />
         <Route path="/valueprop" element={<ValueProp />} />
-        <Route path="/comparison-matrix" element={<ComparisonMatrix />} />
+        <Route path="/comparison-matrix" element={<CompatibilityMatrix />} />
         <Route path="/chatbot" element={<ChatBot />} />
       </Routes>
     </Router>
