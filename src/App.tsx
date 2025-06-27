@@ -3,11 +3,13 @@ import Catalogue from './components/Catalogue'
 import Compare from './components/Compare'
 import LoginForm from './components/LoginForm'
 import { Product } from './data/products'
-import { fetchProducts, ProductsAndFeatures } from './data/fetchProducts'
+import { fetchProducts, ProductsAndFeatures, FeatureRow } from './data/fetchProducts'
 import { fetchUsers, User } from './data/fetchUsers'
 import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom'
 import SpecConf from './SpecConf'
 import ValueProp from './ValueProp'
+import ComparisonMatrix from './ComparisonMatrix'
+import ChatBot from './ChatBot'
 import { useAutoLogout } from './hooks/useAutoLogout'
 import { Analytics } from '@vercel/analytics/react'
 
@@ -16,7 +18,7 @@ const AUTO_LOGOUT_MS = 10 * 60 * 1000; // 10 minutes
 
 function MainApp() {
   const [products, setProducts] = useState<Product[]>([])
-  const [featureKeys, setFeatureKeys] = useState<string[]>([])
+  const [featureRows, setFeatureRows] = useState<FeatureRow[]>([])
   const [selected, setSelected] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -37,9 +39,9 @@ function MainApp() {
     setLoading(true)
     setError(null)
     fetchProducts()
-      .then(({ products, featureKeys }: ProductsAndFeatures) => {
+      .then(({ products, featureRows }: ProductsAndFeatures) => {
         setProducts(products)
-        setFeatureKeys(featureKeys)
+        setFeatureRows(featureRows)
       })
       .catch(e => setError(e.message))
       .finally(() => setLoading(false))
@@ -108,6 +110,40 @@ function MainApp() {
     navigate('/')
   }
 
+  // Responsive top-left nav buttons
+  const renderNavButtons = () => (
+    <div className="flex flex-wrap gap-2 items-center">
+      <button
+        className="text-xs px-3 py-1 rounded bg-cyan-500 border border-cyan-600 text-white font-semibold hover:bg-cyan-600 transition"
+        onClick={() => navigate('/comparison-matrix')}
+        type="button"
+      >
+        Comparison Matrix
+      </button>
+      <button
+        className="text-xs px-3 py-1 rounded bg-emerald-500 border border-emerald-600 text-white font-semibold hover:bg-emerald-600 transition"
+        onClick={() => navigate('/specconf')}
+        type="button"
+      >
+        Specs Builder
+      </button>
+      <button
+        className="text-xs px-3 py-1 rounded bg-violet-500 border border-violet-600 text-white font-semibold hover:bg-violet-600 transition"
+        onClick={() => navigate('/valueprop')}
+        type="button"
+      >
+        Value Sales Pitch
+      </button>
+      <button
+        className="text-xs px-3 py-1 rounded bg-fuchsia-500 border border-fuchsia-600 text-white font-semibold hover:bg-fuchsia-600 transition"
+        onClick={() => navigate('/chatbot')}
+        type="button"
+      >
+        ChatBot
+      </button>
+    </div>
+  )
+
   if (loading || userLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center text-xl text-neutral-200">
@@ -144,23 +180,10 @@ function MainApp() {
       />
       <main className="flex-1 w-full relative z-10">
         <div className="max-w-6xl mx-auto w-full">
-          {/* Top bar with Spec Generator button, Value Proposition button, and login info */}
+          {/* Top bar with nav buttons and login info */}
           {loggedInUser && (
-            <div className="flex justify-between items-center mb-2">
-              <div className="flex gap-2">
-                <button
-                  className="text-xs px-3 py-1 rounded bg-emerald-500 border border-emerald-600 text-white font-semibold hover:bg-emerald-600 transition"
-                  onClick={() => navigate('/specconf')}
-                >
-                  Specs Builder
-                </button>
-                <button
-                  className="text-xs px-3 py-1 rounded bg-violet-500 border border-violet-600 text-white font-semibold hover:bg-violet-600 transition"
-                  onClick={() => navigate('/valueprop')}
-                >
-                  Value Pitch
-                </button>
-              </div>
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-2 gap-2">
+              {renderNavButtons()}
               <div className="flex items-center">
                 <span className="text-neutral-200 text-xs mr-2">
                   Logged in as <b>{loggedInUser}</b>
@@ -192,7 +215,7 @@ function MainApp() {
                 selected={selected}
                 products={products}
               />
-              <Compare products={selected} onRemove={handleRemove} featureKeys={featureKeys} />
+              <Compare products={selected} onRemove={handleRemove} featureRows={featureRows} />
             </>
           )}
         </div>
@@ -212,6 +235,8 @@ export default function App() {
         <Route path="/" element={<MainApp />} />
         <Route path="/specconf" element={<SpecConf />} />
         <Route path="/valueprop" element={<ValueProp />} />
+        <Route path="/comparison-matrix" element={<ComparisonMatrix />} />
+        <Route path="/chatbot" element={<ChatBot />} />
       </Routes>
     </Router>
   )

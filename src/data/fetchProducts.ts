@@ -2,17 +2,21 @@ import type { Product } from './products'
 
 const SHEET_ID = '1dhFmdv0UnDNYY1bVnjN8O8T4IMWSPDtUqGvgaC7b65s'
 const API_KEY = 'AIzaSyCwGp5jB-QIq6EcY-yDF1kYrXkhVmKy0_k'
-// IMPORTANT: The tab name must match exactly as in your Google Sheet (default is "Sheet1")
-const RANGE = 'Sheet1!A1:ZZ1000' // Update this if your tab name is different
+const RANGE = 'Sheet1!A1:ZZ1000'
 
 // Helper: Transpose a 2D array
 function transpose<T>(matrix: T[][]): T[][] {
   return matrix[0].map((_, colIndex) => matrix.map(row => row[colIndex] ?? ''))
 }
 
+export type FeatureRow = {
+  section: string
+  feature: string
+}
+
 export type ProductsAndFeatures = {
   products: Product[]
-  featureKeys: string[]
+  featureRows: FeatureRow[]
 }
 
 export async function fetchProducts(): Promise<ProductsAndFeatures> {
@@ -36,28 +40,33 @@ export async function fetchProducts(): Promise<ProductsAndFeatures> {
       throw new Error('No data found in Google Sheet')
     }
 
-    // The first row is the header: ["Feature", "ProductA", "ProductB", ...]
-    // The first column is the feature name, rest are product values
+    // New structure: [Section, Feature, Product1, Product2, ...]
     const headerRow = values[0]
     const featureRows = values.slice(1)
 
-    // Get all feature names (first column, skipping empty)
-    const featureKeys = featureRows.map(row => row[0]).filter(Boolean)
+    // Build featureRows: [{section, feature}]
+    const featureRowObjs: FeatureRow[] = featureRows
+      .map(row => ({
+        section: row[0]?.trim() || '',
+        feature: row[1]?.trim() || '',
+      }))
+      .filter(r => r.feature) // Only keep rows with a feature name
 
     // Transpose to get products as columns
     const transposed = transpose(values)
-    // transposed[0] is the header: ["Feature", ...feature names]
-    // Each product column: [ProductName, ...featureValues]
+    // transposed[0] = ["Section", ...]
+    // transposed[1] = ["Feature", ...]
+    // transposed[2+] = [ProductName, ...featureValues]
     const products: Product[] = []
 
-    for (let col = 1; col < transposed.length; ++col) {
+    for (let col = 2; col < transposed.length; ++col) {
       const colData = transposed[col]
-      const name = colData[0] || `Product ${col}`
+      const name = colData[0] || `Product ${col - 1}`
       const description = ''
       const image = ''
       const features: Record<string, string> = {}
       for (let row = 1; row < colData.length; ++row) {
-        const featureName = featureRows[row - 1]?.[0] || ''
+        const featureName = featureRows[row - 1]?.[1] || ''
         const value = colData[row] || ''
         if (featureName) features[featureName] = value
       }
@@ -70,7 +79,7 @@ export async function fetchProducts(): Promise<ProductsAndFeatures> {
       })
     }
 
-    return { products, featureKeys }
+    return { products, featureRows: featureRowObjs }
   } catch (err: any) {
     // eslint-disable-next-line no-console
     console.error('fetchProducts error:', err)
