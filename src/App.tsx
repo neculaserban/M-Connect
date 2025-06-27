@@ -125,14 +125,14 @@ function MainApp() {
         onClick={() => navigate('/specconf')}
         type="button"
       >
-        Specs Builder
+        Specs Generator
       </button>
       <button
         className="text-xs px-3 py-1 rounded bg-violet-500 border border-violet-600 text-white font-semibold hover:bg-violet-600 transition"
         onClick={() => navigate('/valueprop')}
         type="button"
       >
-        Value Sales Pitch
+        Value Proposition
       </button>
       <button
         className="text-xs px-3 py-1 rounded bg-fuchsia-500 border border-fuchsia-600 text-white font-semibold hover:bg-fuchsia-600 transition"

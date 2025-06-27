@@ -170,10 +170,9 @@ export default function Compare({ products, onRemove, featureRows }: Props) {
                 <tr key={`section-${row.section}-${idx}`}>
                   <td
                     colSpan={products.length + 1}
-                    className="bg-gradient-to-r from-emerald-400/10 via-white/10 to-violet-400/10 text-center text-transparent bg-clip-text font-extrabold uppercase px-3 py-3 text-base border-t border-emerald-400/30"
+                    className="bg-gradient-to-r from-emerald-400/10 via-white/10 to-violet-400/10 text-center text-transparent bg-clip-text font-extrabold uppercase px-3 py-3 text-base"
                     style={{
                       letterSpacing: '0.04em',
-                      borderTopWidth: idx === 0 ? 0 : '1px',
                       fontWeight: 900,
                       backgroundImage: 'linear-gradient(90deg, #34d399 0%, #a78bfa 100%)',
                       WebkitBackgroundClip: 'text',
