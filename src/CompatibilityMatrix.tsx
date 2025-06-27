@@ -197,7 +197,11 @@ export default function CompatibilityMatrix() {
                       {tables[activeTab].data[0]?.map((col, idx) => (
                         <th
                           key={col + idx}
-                          className={`px-2 py-2 font-extrabold text-center border-b border-white/30 bg-gradient-to-r from-emerald-900/60 to-violet-900/60 text-white uppercase ${idx === 0 ? 'sticky left-0 bg-neutral-900/90 z-10' : ''}`}
+                          className={`px-2 py-2 font-extrabold text-center border-b border-white/30 uppercase
+                            ${idx === 0
+                              ? 'sticky left-0 bg-neutral-800 text-emerald-200 z-10'
+                              : 'bg-neutral-800 text-emerald-200'
+                            }`}
                           style={{
                             minWidth: idx === 0 ? 90 : 60,
                             maxWidth: idx === 0 ? 180 : 120,
@@ -220,7 +224,7 @@ export default function CompatibilityMatrix() {
                         <tr key={'section-' + ridx}>
                           <td
                             colSpan={tables[activeTab].data[0]?.length || 1}
-                            className="bg-gradient-to-r from-emerald-400/10 via-white/10 to-violet-400/10 text-center font-extrabold uppercase px-2 py-2 text-base border-t border-emerald-400/30 text-emerald-300"
+                            className="bg-gradient-to-r from-emerald-400/10 via-white/10 to-violet-400/10 text-center font-extrabold uppercase px-2 py-2 text-base text-emerald-300"
                             style={{
                               letterSpacing: '0.04em',
                               fontWeight: 900,
@@ -236,7 +240,7 @@ export default function CompatibilityMatrix() {
                             <td
                               key={cidx}
                               className={`px-2 py-1 text-center border-r border-white/10 ${cidx === 0
-                                ? 'font-bold text-white border-r border-white/20 bg-neutral-800 sticky left-0 z-10'
+                                ? 'font-bold text-emerald-200 border-r border-white/20 bg-neutral-800 sticky left-0 z-10'
                                 : getCellColor(val)
                               }`}
                               style={{
