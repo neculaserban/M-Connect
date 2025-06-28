@@ -151,28 +151,28 @@ export default function ValueProp() {
                   ) : cards.length === 0 ? (
                     <div className="text-neutral-300 text-center text-sm">No value proposition cards found.</div>
                   ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8 justify-center">
                       {cards.map((card, idx) => (
                         <div
                           key={card.name}
-                          className="group perspective w-full"
+                          className="group perspective flex justify-center"
                           style={{ perspective: '1200px', minWidth: 0 }}
                         >
                           <div
-                            className={`relative w-full h-full transition-transform duration-500 transform-style-preserve-3d cursor-pointer`}
+                            className={`relative transition-transform duration-500 transform-style-preserve-3d cursor-pointer`}
                             style={{
-                              width: '100%',
-                              minWidth: 0,
+                              width: '420px',
+                              minWidth: '340px',
+                              maxWidth: '480px',
                               height: '340px',
-                              maxWidth: '440px',
                               margin: '0 auto',
                               transform: flipped[idx] ? 'rotateY(180deg)' : 'rotateY(0deg)',
                             }}
                             onClick={() => handleFlip(idx)}
                           >
                             {/* Front */}
-                            <div className="absolute w-full h-full rounded-xl bg-gradient-to-br from-emerald-400/20 to-violet-400/20 border border-white/20 shadow-xl flex flex-col items-center justify-center text-center text-neutral-100 font-bold text-lg px-4 py-2 backface-hidden truncate-card-front">
-                              <span className="w-full truncate break-words">{card.name}</span>
+                            <div className="absolute w-full h-full rounded-xl bg-gradient-to-br from-emerald-400/20 to-violet-400/20 border border-white/20 shadow-xl flex flex-col items-center justify-center text-center text-neutral-100 font-bold text-lg px-4 py-2 backface-hidden break-words">
+                              <span className="w-full break-words text-center">{card.name}</span>
                             </div>
                             {/* Back */}
                             <div
@@ -227,14 +227,6 @@ export default function ValueProp() {
               .custom-scroll {
                 scrollbar-width: thin;
                 scrollbar-color: #34d399 #23272a;
-              }
-              .truncate-card-front {
-                overflow: hidden;
-                text-overflow: ellipsis;
-                white-space: pre-line;
-                word-break: break-word;
-                max-width: 100%;
-                min-width: 0;
               }
             `}</style>
           </section>
