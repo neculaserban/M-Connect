@@ -140,7 +140,7 @@ export default function ValueProp() {
                   💡 Tap a card to flip
                 </span>
                 <br />
-                Discover and memorize the key value propositions for Mindray solutions.
+                Discover the key value propositions for Mindray products and solutions.
               </div>
               <div className="flex flex-col gap-3 items-center max-w-5xl mx-auto bg-white/10 border border-white/20 rounded-2xl shadow-xl p-3 sm:p-4 md:p-6 backdrop-blur-md">
                 <div className="w-full mt-2">
@@ -151,33 +151,40 @@ export default function ValueProp() {
                   ) : cards.length === 0 ? (
                     <div className="text-neutral-300 text-center text-sm">No value proposition cards found.</div>
                   ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
                       {cards.map((card, idx) => (
                         <div
                           key={card.name}
-                          className="group perspective w-64 h-40"
-                          style={{ perspective: '1000px' }}
+                          className="group perspective w-full"
+                          style={{ perspective: '1200px', minWidth: 0 }}
                         >
                           <div
                             className={`relative w-full h-full transition-transform duration-500 transform-style-preserve-3d cursor-pointer`}
                             style={{
+                              width: '100%',
+                              minWidth: 0,
+                              height: '340px',
+                              maxWidth: '440px',
+                              margin: '0 auto',
                               transform: flipped[idx] ? 'rotateY(180deg)' : 'rotateY(0deg)',
                             }}
                             onClick={() => handleFlip(idx)}
                           >
                             {/* Front */}
-                            <div className="absolute w-full h-full rounded-xl bg-gradient-to-br from-emerald-400/20 to-violet-400/20 border border-white/20 shadow-xl flex flex-col items-center justify-center text-center text-neutral-100 font-bold text-lg px-4 py-2 backface-hidden">
-                              {card.name}
+                            <div className="absolute w-full h-full rounded-xl bg-gradient-to-br from-emerald-400/20 to-violet-400/20 border border-white/20 shadow-xl flex flex-col items-center justify-center text-center text-neutral-100 font-bold text-lg px-4 py-2 backface-hidden truncate-card-front">
+                              <span className="w-full truncate break-words">{card.name}</span>
                             </div>
                             {/* Back */}
                             <div
-                              className="absolute w-full h-full rounded-xl bg-white/10 border border-white/20 shadow-xl flex flex-col items-center justify-center text-center text-neutral-200 font-medium text-base px-4 py-2 backface-hidden overflow-auto break-words"
+                              className="absolute w-full h-full rounded-xl bg-white/10 border border-white/20 shadow-xl flex flex-col items-center justify-center text-center text-neutral-200 font-medium text-[13px] px-4 py-3 backface-hidden overflow-auto break-words custom-scroll"
                               style={{
                                 transform: 'rotateY(180deg)',
                                 maxHeight: '100%',
                                 maxWidth: '100%',
-                                fontSize: '1rem',
+                                fontSize: '0.92rem',
                                 wordBreak: 'break-word',
+                                lineHeight: '1.35',
+                                padding: '1.1rem',
                               }}
                             >
                               {card.description}
@@ -197,13 +204,37 @@ export default function ValueProp() {
             </div>
             <style>{`
               .perspective {
-                perspective: 1000px;
+                perspective: 1200px;
               }
               .transform-style-preserve-3d {
                 transform-style: preserve-3d;
               }
               .backface-hidden {
                 backface-visibility: hidden;
+              }
+              .custom-scroll::-webkit-scrollbar {
+                width: 8px;
+                background: transparent;
+              }
+              .custom-scroll::-webkit-scrollbar-thumb {
+                background: linear-gradient(135deg, #34d399 0%, #a78bfa 100%);
+                border-radius: 8px;
+              }
+              .custom-scroll::-webkit-scrollbar-track {
+                background: rgba(24,24,27,0.15);
+                border-radius: 8px;
+              }
+              .custom-scroll {
+                scrollbar-width: thin;
+                scrollbar-color: #34d399 #23272a;
+              }
+              .truncate-card-front {
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: pre-line;
+                word-break: break-word;
+                max-width: 100%;
+                min-width: 0;
               }
             `}</style>
           </section>
