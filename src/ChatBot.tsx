@@ -92,22 +92,83 @@ export default function ChatBot() {
         </div>
       )}
       {/* Main Container */}
-      <div className="w-full max-w-6xl bg-white/10 border border-white/20 rounded-2xl shadow-xl p-6 pt-16 backdrop-blur-md relative z-10 mt-4 flex flex-col items-center">
-        <div className="flex flex-col items-center gap-4">
-          <img
-            src="https://media.tenor.com/On7kvXhzml4AAAAj/loading-gif.gif"
-            alt="Loading bar"
-            className="w-32 h-8 object-contain"
-            style={{ filter: 'drop-shadow(0 0 8px #a78bfa)' }}
-          />
-          <div className="text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-violet-400 tracking-tight text-center">
-            Work in Progress
+      <div className="w-full max-w-3xl bg-white/10 border border-white/20 rounded-2xl shadow-2xl p-8 pt-16 backdrop-blur-md relative z-10 mt-8 flex flex-col items-center">
+        <div className="flex flex-col items-center gap-6 w-full">
+          <div className="flex flex-col items-center gap-2">
+            <img
+              src="https://cdn-icons-gif.flaticon.com/12544/12544440.gif"
+              alt="AI Assistant"
+              className="w-28 h-28 object-contain rounded-full border-4 border-emerald-400 shadow-lg mb-2"
+              style={{ background: 'rgba(52,211,153,0.08)' }}
+            />
+            <h1 className="text-3xl sm:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-violet-400 tracking-tight text-center drop-shadow-lg">
+              Meet Your Next-Gen ChatBot Sales Assistant
+            </h1>
+            <div className="text-neutral-200 text-base sm:text-lg text-center max-w-xl font-medium mt-2">
+              <span className="inline-block bg-gradient-to-r from-emerald-400/20 to-violet-400/20 px-3 py-1 rounded-lg font-semibold text-emerald-200 mb-2">
+                🚀 Coming Soon
+              </span>
+              <br />
+              We’re building something powerful behind the scenes — an intelligent assistant to elevate your sales and project success.
+            </div>
           </div>
-          <div className="text-neutral-300 text-sm text-center max-w-md">
-            🚧 The Mindray ChatBot is getting ready behind the scenes. Check back soon for smart support!
+          <div className="w-full mt-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <FeatureCard
+                icon="💡"
+                title="Quotation Assistance"
+                desc=" Generate product configurations and quotations based on specific customer needs."
+              />
+              <FeatureCard
+                icon="📄"
+                title="Tender Assistence"
+                desc="Analyze tender documents and identify the manufacturer and product with the highest chance to win, formulate clarifications to adjust specs to our products, autofill tender documents with proof of compliance based on the features requested by tender authority."
+              />
+              <FeatureCard
+                icon="🎤"
+                title="Sales Pitch Builder"
+                desc="Create customer-specific sales pitches based on your project's unique requirements."
+              />
+              <FeatureCard
+                icon="🛠️"
+                title="Technical Solution Design"
+                desc="Develop detailed, technical solution proposals for client needs and specify deliverables and technical requirements based on the project configuration."
+              />
+              <FeatureCard
+                icon="📊"
+                title="Lead Scoring & Strategy"
+                desc="Help sales managers identify project success probability and advise on tender strategy (provide risk assessment, margin proposals, resource gap analysis, sales lead scoring)."
+              />
+              <FeatureCard
+                icon="🤖"
+                title="AI Sales Coaching"
+                desc="Provide real-time training and guidance to sales teams based on real-life project scenarios, up-to-date product knowledge and validated sales techniques."
+              />
+            </div>
+          </div>
+          <div className="mt-8 text-center text-neutral-400 text-sm max-w-lg">
+            <span className="inline-block bg-white/10 border border-white/20 rounded-lg px-4 py-2 shadow">
+              <b>Stay tuned:</b> The future of sales support is almost here.
+            </span>
           </div>
         </div>
       </div>
+    </div>
+  )
+}
+
+type FeatureCardProps = {
+  icon: string
+  title: string
+  desc: string
+}
+
+function FeatureCard({ icon, title, desc }: FeatureCardProps) {
+  return (
+    <div className="flex flex-col items-start gap-2 bg-white/10 border border-white/20 rounded-xl p-4 shadow hover:scale-[1.03] hover:border-emerald-400 transition-all duration-200 min-h-[120px]">
+      <span className="text-2xl">{icon}</span>
+      <span className="font-bold text-emerald-200 text-base">{title}</span>
+      <span className="text-neutral-200 text-sm">{desc}</span>
     </div>
   )
 }

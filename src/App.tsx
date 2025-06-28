@@ -147,29 +147,36 @@ function MainApp() {
       </button>
       {navOpen && (
         <div
-          className="absolute left-0 mt-2 z-30 min-w-[160px] rounded-xl border border-white/20 bg-neutral-900/95 shadow-2xl backdrop-blur-md flex flex-col py-2 animate-fade-in"
-          style={{ fontFamily: 'inherit' }}
+          className="absolute left-0 mt-2 z-30 min-w-[200px] rounded-xl border border-white/20 shadow-2xl backdrop-blur-md flex flex-col py-2 animate-fade-in nav-dropdown-gradient"
+          style={{
+            fontFamily: 'inherit',
+            background: 'linear-gradient(135deg, #23272a 60%, #44454a 100%)',
+          }}
         >
           <button
-            className="w-full text-left px-4 py-2 text-xs font-semibold text-white hover:bg-emerald-500/20 hover:text-emerald-300 rounded transition"
+            className="w-full text-left px-4 py-2 text-xs font-semibold text-white hover:bg-emerald-500/20 hover:text-emerald-300 rounded transition whitespace-nowrap"
+            style={{ fontWeight: 600 }}
             onClick={() => { setNavOpen(false); navigate('/comparison-matrix') }}
           >
             Compatibility Matrix
           </button>
           <button
-            className="w-full text-left px-4 py-2 text-xs font-semibold text-white hover:bg-emerald-500/20 hover:text-emerald-300 rounded transition"
+            className="w-full text-left px-4 py-2 text-xs font-semibold text-white hover:bg-emerald-500/20 hover:text-emerald-300 rounded transition whitespace-nowrap"
+            style={{ fontWeight: 600 }}
             onClick={() => { setNavOpen(false); navigate('/specconf') }}
           >
             Specification Generator
           </button>
           <button
-            className="w-full text-left px-4 py-2 text-xs font-semibold text-white hover:bg-emerald-500/20 hover:text-emerald-300 rounded transition"
+            className="w-full text-left px-4 py-2 text-xs font-semibold text-white hover:bg-emerald-500/20 hover:text-emerald-300 rounded transition whitespace-nowrap"
+            style={{ fontWeight: 600 }}
             onClick={() => { setNavOpen(false); navigate('/valueprop') }}
           >
             Value Proposition
           </button>
           <button
-            className="w-full text-left px-4 py-2 text-xs font-semibold text-white hover:bg-emerald-500/20 hover:text-emerald-300 rounded transition"
+            className="w-full text-left px-4 py-2 text-xs font-semibold text-white hover:bg-emerald-500/20 hover:text-emerald-300 rounded transition whitespace-nowrap"
+            style={{ fontWeight: 600 }}
             onClick={() => { setNavOpen(false); navigate('/chatbot') }}
           >
             ChatBot (soon)
@@ -183,6 +190,9 @@ function MainApp() {
         }
         .animate-fade-in {
           animation: fade-in 0.18s cubic-bezier(.4,2,.6,1);
+        }
+        .nav-dropdown-gradient {
+          background: linear-gradient(135deg, #23272a 60%, #44454a 100%);
         }
       `}</style>
     </div>
