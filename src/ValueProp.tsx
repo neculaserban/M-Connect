@@ -151,7 +151,7 @@ export default function ValueProp() {
                   ) : cards.length === 0 ? (
                     <div className="text-neutral-300 text-center text-sm">No value proposition cards found.</div>
                   ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8 justify-center">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-10 items-stretch justify-center">
                       {cards.map((card, idx) => (
                         <div
                           key={card.name}

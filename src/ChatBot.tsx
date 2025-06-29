@@ -94,7 +94,7 @@ export default function ChatBot() {
                   🚀 Coming Soon
                 </span>
                 <br />
-                We’re building something powerful that will elevate your sales success.
+                We’re building something powerful to elevate your sales success.
               </div>
               <div className="flex flex-col gap-3 items-center max-w-5xl mx-auto bg-white/10 border border-white/20 rounded-2xl shadow-xl p-3 sm:p-4 md:p-6 backdrop-blur-md">
                 <div className="w-full mt-2">
@@ -115,7 +115,7 @@ export default function ChatBot() {
                       desc="Create customer-specific sales pitches based on your project's unique requirements."
                     />
 										<FeatureCard
-                      icon="💡"
+                      icon="🧩"
                       title="Quotation Assistance"
                       desc=" Generate product configurations and quotations based on specific customer needs."
                     />
