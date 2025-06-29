@@ -145,9 +145,15 @@ export default function CompatibilityMatrix() {
                 <br />
                Avoid mismatched combinations between Mindray products, third-party systems and software revisions.
               </div>
-              <div className="flex flex-col gap-3 items-center max-w-5xl mx-auto bg-white/10 border border-white/20 rounded-2xl shadow-xl p-3 sm:p-4 md:p-6 backdrop-blur-md">
-                {/* Table selector buttons */}
-                <div className="flex flex-wrap gap-2 justify-center mb-6">
+              {/* Responsive Button Row */}
+              <div className="w-full flex justify-center">
+                <div
+                  className="w-full flex flex-wrap gap-2 mb-6 px-2 sm:px-6"
+                  style={{
+                    justifyContent: 'center',
+                    alignItems: 'stretch',
+                  }}
+                >
                   {tables.map((table, idx) => (
                     <button
                       key={table.name}
@@ -157,9 +163,14 @@ export default function CompatibilityMatrix() {
                           : 'bg-neutral-800 text-emerald-300 border-white/30 hover:bg-emerald-900 hover:text-white'}
                       `}
                       style={{
-                        minWidth: 120,
                         letterSpacing: '0.03em',
                         outline: activeTab === idx ? '2px solid #a78bfa' : undefined,
+                        whiteSpace: 'normal',
+                        wordBreak: 'break-word',
+                        textAlign: 'center',
+                        minWidth: 0,
+                        maxWidth: '100%',
+                        flex: '0 0 auto',
                       }}
                       onClick={() => setActiveTab(idx)}
                     >
@@ -167,6 +178,8 @@ export default function CompatibilityMatrix() {
                     </button>
                   ))}
                 </div>
+              </div>
+              <div className="flex flex-col gap-3 items-center max-w-5xl mx-auto bg-white/10 border border-white/20 rounded-2xl shadow-xl p-3 sm:p-4 md:p-6 backdrop-blur-md">
                 {loading && (
                   <div className="flex flex-col items-center gap-2 my-8">
                     <img
