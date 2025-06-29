@@ -110,6 +110,9 @@ export default function SpecConf() {
   const [selectedLang, setSelectedLang] = useState<string>('en')
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
+  const dropdownButtonRef = useRef<HTMLButtonElement>(null)
+  const dropdownListRef = useRef<HTMLDivElement>(null)
+  const tableWrapperRef = useRef<HTMLDivElement>(null)
 
   // Fetch grouped feature descriptions and languages
   const { grouped, allDescs, languages, loading: descLoading, error: descError } = useFeatureDescriptions()
@@ -126,7 +129,10 @@ export default function SpecConf() {
   useEffect(() => {
     if (!dropdownOpen) return
     function handleClick(e: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(e.target as Node)
+      ) {
         setDropdownOpen(false)
       }
     }
@@ -223,7 +229,38 @@ export default function SpecConf() {
     setSelectedLang(lang)
     setShowSpecs(true)
     setDropdownOpen(false)
+    // Scroll to the table after specs are shown
+    setTimeout(() => {
+      if (tableWrapperRef.current) {
+        tableWrapperRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      }
+    }, 100)
   }
+
+  // When opening the dropdown, scroll it into view and prevent double scrollbars
+  useEffect(() => {
+    if (dropdownOpen && dropdownButtonRef.current) {
+      // Scroll the button into view (so dropdown is visible)
+      dropdownButtonRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      // Optionally focus the button for accessibility
+      dropdownButtonRef.current.focus()
+    }
+  }, [dropdownOpen])
+
+  // Prevent copy, right-click, and selection on the table
+  useEffect(() => {
+    if (!showSpecs || !tableWrapperRef.current) return
+    const el = tableWrapperRef.current
+    const prevent = (e: Event) => e.preventDefault()
+    el.addEventListener('contextmenu', prevent)
+    el.addEventListener('copy', prevent)
+    el.addEventListener('selectstart', prevent)
+    return () => {
+      el.removeEventListener('contextmenu', prevent)
+      el.removeEventListener('copy', prevent)
+      el.removeEventListener('selectstart', prevent)
+    }
+  }, [showSpecs])
 
   return (
     <div className="min-h-screen flex flex-col items-center relative overflow-x-hidden">
@@ -284,7 +321,7 @@ export default function SpecConf() {
                 {/* Feature selection UI */}
                 <div className="border border-white/20 rounded-xl bg-white/5 mb-6 w-full">
                   <div className="bg-gradient-to-r from-emerald-400/20 to-violet-400/20 text-neutral-100 font-extrabold text-lg px-4 py-2 rounded-t-xl tracking-tight border-b border-white/10">
-                    Feature Selection
+                    Select Features & Product Options
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6 px-4 py-6">
                     {Object.entries(grouped).map(([section, features]) => (
@@ -318,6 +355,7 @@ export default function SpecConf() {
                 <div className="flex justify-center mt-6 mb-2">
                   <div className="relative" ref={dropdownRef}>
                     <button
+                      ref={dropdownButtonRef}
                       className="px-6 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-lg shadow border border-emerald-700 transition disabled:opacity-60 flex items-center gap-2"
                       onClick={() => setDropdownOpen(v => !v)}
                       disabled={selected.size === 0 || descLoading || languages.length === 0}
@@ -330,11 +368,15 @@ export default function SpecConf() {
                     </button>
                     {dropdownOpen && (
                       <div
+                        ref={dropdownListRef}
                         className="absolute left-0 right-0 mt-2 z-30 rounded-xl border border-white/20 bg-white/80 shadow-xl backdrop-blur-md"
                         style={{
                           minWidth: '180px',
                           fontFamily: 'inherit',
+                          maxHeight: '300px',
+                          overflowY: 'auto',
                         }}
+                        tabIndex={-1}
                       >
                         {languages.map(lang => (
                           <button
@@ -364,7 +406,21 @@ export default function SpecConf() {
 
                 {/* Specs Table */}
                 {showSpecs && (
-                  <div className="border border-white/20 rounded-xl bg-white/5 shadow-xl mt-8 w-full">
+                  <div
+                    ref={tableWrapperRef}
+                    className="border border-white/20 rounded-xl bg-white/5 shadow-xl mt-8 w-full specconf-table-protect"
+                    tabIndex={-1}
+                    style={{
+                      userSelect: 'none',
+                      WebkitUserSelect: 'none',
+                      MozUserSelect: 'none',
+                      msUserSelect: 'none',
+                      pointerEvents: 'auto',
+                    }}
+                    onContextMenu={e => e.preventDefault()}
+                    onCopy={e => e.preventDefault()}
+                    onSelectStart={e => e.preventDefault()}
+                  >
                     <div className="bg-gradient-to-r from-emerald-400/20 to-violet-400/20 text-neutral-100 font-extrabold text-lg px-4 py-2 rounded-t-xl tracking-tight border-b border-white/10">
                       Project Specifications Based on Selection
                     </div>
@@ -372,7 +428,7 @@ export default function SpecConf() {
                       {selectedDescs.length === 0 ? (
                         <div className="text-neutral-300 text-sm">No descriptions found for selected features.</div>
                       ) : (
-                        <table className="min-w-full border border-white/20 rounded-xl bg-white/10 shadow-lg">
+                        <table className="min-w-full border border-white/20 rounded-xl bg-white/10 shadow-lg specconf-table-no-select">
                           <thead>
                             <tr>
                               <th className="text-left px-4 py-2 text-emerald-300 text-xs font-bold">Configuration</th>
@@ -428,6 +484,25 @@ export default function SpecConf() {
               }
               .specconf-dropdown button:focus {
                 outline: none;
+              }
+              /* Prevent selection and copying on the table */
+              .specconf-table-protect, .specconf-table-protect * {
+                user-select: none !important;
+                -webkit-user-select: none !important;
+                -moz-user-select: none !important;
+                -ms-user-select: none !important;
+                pointer-events: auto;
+              }
+              .specconf-table-no-select, .specconf-table-no-select * {
+                user-select: none !important;
+                -webkit-user-select: none !important;
+                -moz-user-select: none !important;
+                -ms-user-select: none !important;
+                pointer-events: auto;
+              }
+              /* Remove double scrollbars for dropdown */
+              html, body {
+                overflow-x: hidden !important;
               }
             `}</style>
           </section>
