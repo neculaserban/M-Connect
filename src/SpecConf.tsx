@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAutoLogout } from './hooks/useAutoLogout'
+import NavDropdown from './components/NavDropdown'
 
 const LOGIN_KEY = 'mconnect_logged_in_user'
 const AUTO_LOGOUT_MS = 10 * 60 * 1000; // 10 minutes
@@ -225,7 +226,7 @@ export default function SpecConf() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center py-8 relative overflow-x-hidden">
+    <div className="min-h-screen flex flex-col items-center relative overflow-x-hidden">
       {/* Animated GIF background */}
       <div
         aria-hidden="true"
@@ -239,25 +240,8 @@ export default function SpecConf() {
       />
       {/* Top bar */}
       <div className="w-full max-w-6xl mx-auto flex justify-between items-center px-2 sm:px-4 py-2 z-20 relative">
-        {/* Left: Back Button */}
-        <button
-          className="px-2 py-1 sm:px-4 sm:py-2 rounded bg-emerald-500 border border-emerald-600 text-white font-semibold hover:bg-emerald-600 transition text-xs shadow
-            whitespace-nowrap
-            min-w-[36px] sm:min-w-[120px]
-            text-[13px] sm:text-xs
-            "
-          style={{
-            fontSize: '13px',
-            minWidth: '36px',
-            maxWidth: '90vw',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-          }}
-          onClick={() => navigate('/')}
-        >
-          <span className="hidden sm:inline">&larr; Back to Competitive Matrix</span>
-          <span className="inline sm:hidden">&larr; Back</span>
-        </button>
+        {/* Left: More Dropdown */}
+        <NavDropdown />
         {/* Right: Logged in as and Logout */}
         {loggedInUser && (
           <div className="flex items-center ml-2 sm:ml-0">
@@ -281,156 +265,174 @@ export default function SpecConf() {
         </div>
       )}
 
-      {/* Main Container */}
-      <div className="w-full max-w-6xl bg-white/10 border border-white/20 rounded-2xl shadow-xl p-6 pt-16 backdrop-blur-md relative z-10 mt-4">
-        {/* Feature selection UI */}
-        <div className="border border-white/20 rounded-xl bg-white/5 mb-6">
-          <div className="bg-gradient-to-r from-emerald-400/20 to-violet-400/20 text-neutral-100 font-extrabold text-lg px-4 py-2 rounded-t-xl tracking-tight border-b border-white/10">
-            M-Connect Specification Generator
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 px-4 py-6">
-            {Object.entries(grouped).map(([section, features]) => (
-              <div
-                key={section}
-                className="border border-white/20 rounded-xl bg-white/10 shadow flex flex-col mb-4"
-                style={{ minWidth: 0 }}
-              >
-                <div className="bg-gradient-to-r from-emerald-400/20 to-violet-400/20 text-neutral-100 font-bold text-base px-4 py-2 rounded-t-xl border-b border-white/10">
-                  {section}
-                </div>
-                <div className="flex flex-col gap-2 px-4 py-4">
-                  {features.map(d => (
-                    <label key={d.name} className="flex items-center gap-2 text-neutral-200 text-xs font-medium whitespace-normal break-words overflow-hidden">
-                      <input
-                        type="checkbox"
-                        className="accent-emerald-500"
-                        checked={selected.has(d.name)}
-                        onChange={() => handleToggle(d.name)}
-                      />
-                      <span className="break-words">{d.name}</span>
-                    </label>
-                  ))}
-                </div>
+      {/* Main Container - identical paddings and widths as ChatBot/ValueProp */}
+      <main className="flex-1 w-full relative z-10">
+        <div className="max-w-6xl mx-auto w-full">
+          <section className="relative py-4 px-1">
+            <div className="relative z-10 flex flex-col items-center gap-2">
+              <h2 className="text-2xl sm:text-4xl font-extrabold mb-1 text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-violet-400 tracking-tight text-center drop-shadow-[0_2px_8px_rgba(16,185,129,0.15)]">
+                M-Connect Specification Generator
+              </h2>
+              <div className="text-xs text-neutral-300 text-center mb-4 font-medium tracking-wide">
+                <span className="inline-block bg-gradient-to-r from-emerald-400/20 to-violet-400/20 px-3 py-1 rounded-lg font-semibold text-emerald-200 mb-2">
+                  🛠️ Select features and generate project specs
+                </span>
+                <br />
+                Instantly generate a project specification table based on your selected features.
               </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Generate Specs Button with Language Dropdown */}
-        <div className="flex justify-center mt-6 mb-2">
-          <div className="relative" ref={dropdownRef}>
-            <button
-              className="px-6 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-lg shadow border border-emerald-700 transition disabled:opacity-60 flex items-center gap-2"
-              onClick={() => setDropdownOpen(v => !v)}
-              disabled={selected.size === 0 || descLoading || languages.length === 0}
-              type="button"
-            >
-              {descLoading ? 'Loading...' : 'Generate Specs'}
-              <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-              </svg>
-            </button>
-            {dropdownOpen && (
-              <div
-                className="absolute left-0 right-0 mt-2 z-30 rounded-xl border border-white/20 bg-white/80 shadow-xl backdrop-blur-md"
-                style={{
-                  minWidth: '180px',
-                  fontFamily: 'inherit',
-                }}
-              >
-                {languages.map(lang => (
-                  <button
-                    key={lang.key}
-                    className="w-full text-left px-4 py-2 text-sm font-semibold text-neutral-800 hover:bg-emerald-100 hover:text-emerald-700 rounded transition"
-                    style={{
-                      fontFamily: 'inherit',
-                      background: 'none',
-                      border: 'none',
-                      outline: 'none',
-                      cursor: 'pointer',
-                    }}
-                    onClick={() => handleLangAndGenerate(lang.key)}
-                  >
-                    {lang.label}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Error */}
-        {descError && (
-          <div className="text-red-400 text-center text-sm mb-2">{descError}</div>
-        )}
-
-        {/* Specs Table */}
-        {showSpecs && (
-          <div className="border border-white/20 rounded-xl bg-white/5 shadow-xl mt-8">
-            <div className="bg-gradient-to-r from-emerald-400/20 to-violet-400/20 text-neutral-100 font-extrabold text-lg px-4 py-2 rounded-t-xl tracking-tight border-b border-white/10">
-              Project Specifications Based on Selection
-            </div>
-            <div className="p-4">
-              {selectedDescs.length === 0 ? (
-                <div className="text-neutral-300 text-sm">No descriptions found for selected features.</div>
-              ) : (
-                <table className="min-w-full border border-white/20 rounded-xl bg-white/10 shadow-lg">
-                  <thead>
-                    <tr>
-                      <th className="text-left px-4 py-2 text-emerald-300 text-xs font-bold">Configuration</th>
-                      <th className="text-left px-4 py-2 text-emerald-300 text-xs font-bold">Description</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {selectedDescs.map(d => (
-                      <tr key={d.name} className="border-t border-white/10">
-                        <td className="px-4 py-2 text-neutral-100 text-xs font-semibold">{d.name}</td>
-                        <td className="px-4 py-2 text-neutral-200 text-xs">
-                          {d.descriptions[selectedLang] || d.descriptions['en'] || ''}
-                        </td>
-                      </tr>
+              <div className="flex flex-col gap-3 items-center max-w-5xl mx-auto bg-white/10 border border-white/20 rounded-2xl shadow-xl p-3 sm:p-4 md:p-6 backdrop-blur-md">
+                {/* Feature selection UI */}
+                <div className="border border-white/20 rounded-xl bg-white/5 mb-6 w-full">
+                  <div className="bg-gradient-to-r from-emerald-400/20 to-violet-400/20 text-neutral-100 font-extrabold text-lg px-4 py-2 rounded-t-xl tracking-tight border-b border-white/10">
+                    Feature Selection
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 px-4 py-6">
+                    {Object.entries(grouped).map(([section, features]) => (
+                      <div
+                        key={section}
+                        className="border border-white/20 rounded-xl bg-white/10 shadow flex flex-col mb-4"
+                        style={{ minWidth: 0 }}
+                      >
+                        <div className="bg-gradient-to-r from-emerald-400/20 to-violet-400/20 text-neutral-100 font-bold text-base px-4 py-2 rounded-t-xl border-b border-white/10">
+                          {section}
+                        </div>
+                        <div className="flex flex-col gap-2 px-4 py-4">
+                          {features.map(d => (
+                            <label key={d.name} className="flex items-center gap-2 text-neutral-200 text-xs font-medium whitespace-normal break-words overflow-hidden">
+                              <input
+                                type="checkbox"
+                                className="accent-emerald-500"
+                                checked={selected.has(d.name)}
+                                onChange={() => handleToggle(d.name)}
+                              />
+                              <span className="break-words">{d.name}</span>
+                            </label>
+                          ))}
+                        </div>
+                      </div>
                     ))}
-                  </tbody>
-                </table>
-              )}
-              <div className="flex justify-center mt-4 gap-2">
-                <button
-                  className="px-4 py-1 rounded bg-white/10 border border-white/20 text-neutral-300 hover:bg-emerald-500 hover:text-white transition text-xs"
-                  onClick={handleRefresh}
-                >
-                  Refresh
-                </button>
-                <button
-                  className="px-4 py-1 rounded bg-emerald-500 border border-emerald-700 text-white hover:bg-emerald-600 transition text-xs font-semibold"
-                  onClick={handleCopyDescriptions}
-                  type="button"
-                >
-                  Copy Descriptions
-                </button>
-              </div>
-              {(copySuccess || copyError) && (
-                <div className={`mt-3 text-center text-xs font-semibold transition-all duration-300 ${
-                  copySuccess
-                    ? 'text-emerald-400 bg-white/10 border border-emerald-400/30 rounded-lg py-2 px-4 shadow'
-                    : 'text-red-400 bg-white/10 border border-red-400/30 rounded-lg py-2 px-4 shadow'
-                }`}>
-                  {copySuccess
-                    ? 'Descriptions copied as a table! You can now paste them into any document.'
-                    : 'Failed to copy. Please try again or check your browser permissions.'}
+                  </div>
                 </div>
-              )}
+
+                {/* Generate Specs Button with Language Dropdown */}
+                <div className="flex justify-center mt-6 mb-2">
+                  <div className="relative" ref={dropdownRef}>
+                    <button
+                      className="px-6 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-lg shadow border border-emerald-700 transition disabled:opacity-60 flex items-center gap-2"
+                      onClick={() => setDropdownOpen(v => !v)}
+                      disabled={selected.size === 0 || descLoading || languages.length === 0}
+                      type="button"
+                    >
+                      {descLoading ? 'Loading...' : 'Generate Specs'}
+                      <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </button>
+                    {dropdownOpen && (
+                      <div
+                        className="absolute left-0 right-0 mt-2 z-30 rounded-xl border border-white/20 bg-white/80 shadow-xl backdrop-blur-md"
+                        style={{
+                          minWidth: '180px',
+                          fontFamily: 'inherit',
+                        }}
+                      >
+                        {languages.map(lang => (
+                          <button
+                            key={lang.key}
+                            className="w-full text-left px-4 py-2 text-sm font-semibold text-neutral-800 hover:bg-emerald-100 hover:text-emerald-700 rounded transition"
+                            style={{
+                              fontFamily: 'inherit',
+                              background: 'none',
+                              border: 'none',
+                              outline: 'none',
+                              cursor: 'pointer',
+                            }}
+                            onClick={() => handleLangAndGenerate(lang.key)}
+                          >
+                            {lang.label}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Error */}
+                {descError && (
+                  <div className="text-red-400 text-center text-sm mb-2">{descError}</div>
+                )}
+
+                {/* Specs Table */}
+                {showSpecs && (
+                  <div className="border border-white/20 rounded-xl bg-white/5 shadow-xl mt-8 w-full">
+                    <div className="bg-gradient-to-r from-emerald-400/20 to-violet-400/20 text-neutral-100 font-extrabold text-lg px-4 py-2 rounded-t-xl tracking-tight border-b border-white/10">
+                      Project Specifications Based on Selection
+                    </div>
+                    <div className="p-4">
+                      {selectedDescs.length === 0 ? (
+                        <div className="text-neutral-300 text-sm">No descriptions found for selected features.</div>
+                      ) : (
+                        <table className="min-w-full border border-white/20 rounded-xl bg-white/10 shadow-lg">
+                          <thead>
+                            <tr>
+                              <th className="text-left px-4 py-2 text-emerald-300 text-xs font-bold">Configuration</th>
+                              <th className="text-left px-4 py-2 text-emerald-300 text-xs font-bold">Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {selectedDescs.map(d => (
+                              <tr key={d.name} className="border-t border-white/10">
+                                <td className="px-4 py-2 text-neutral-100 text-xs font-semibold">{d.name}</td>
+                                <td className="px-4 py-2 text-neutral-200 text-xs">
+                                  {d.descriptions[selectedLang] || d.descriptions['en'] || ''}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      )}
+                      <div className="flex justify-center mt-4 gap-2">
+                        <button
+                          className="px-4 py-1 rounded bg-white/10 border border-white/20 text-neutral-300 hover:bg-emerald-500 hover:text-white transition text-xs"
+                          onClick={handleRefresh}
+                        >
+                          Refresh
+                        </button>
+                        <button
+                          className="px-4 py-1 rounded bg-emerald-500 border border-emerald-700 text-white hover:bg-emerald-600 transition text-xs font-semibold"
+                          onClick={handleCopyDescriptions}
+                          type="button"
+                        >
+                          Copy Descriptions
+                        </button>
+                      </div>
+                      {(copySuccess || copyError) && (
+                        <div className={`mt-3 text-center text-xs font-semibold transition-all duration-300 ${
+                          copySuccess
+                            ? 'text-emerald-400 bg-white/10 border border-emerald-400/30 rounded-lg py-2 px-4 shadow'
+                            : 'text-red-400 bg-white/10 border border-red-400/30 rounded-lg py-2 px-4 shadow'
+                        }`}>
+                          {copySuccess
+                            ? 'Descriptions copied as a table! You can now paste them into any document.'
+                            : 'Failed to copy. Please try again or check your browser permissions.'}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
-        )}
-      </div>
-      <style>{`
-        .specconf-dropdown {
-          font-family: inherit;
-        }
-        .specconf-dropdown button:focus {
-          outline: none;
-        }
-      `}</style>
+            <style>{`
+              .specconf-dropdown {
+                font-family: inherit;
+              }
+              .specconf-dropdown button:focus {
+                outline: none;
+              }
+            `}</style>
+          </section>
+        </div>
+      </main>
     </div>
   )
 }
