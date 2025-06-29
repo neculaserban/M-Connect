@@ -192,7 +192,7 @@ export default function SpecConf() {
   const handleCopyDescriptions = async () => {
     if (!selectedDescs.length) return
     // Use tab-separated for best pasting into Excel/Word/Google Sheets
-    const header = 'Caracterisitici\tDa\tNu\tObservatii'
+    const header = 'Feature Requirement\tYes\tNo\tComments / Notes'
     const rows = selectedDescs.map(d => {
       // Fallback to English if selectedLang is missing
       const desc = d.descriptions[selectedLang] || d.descriptions['en'] || ''
@@ -459,7 +459,7 @@ export default function SpecConf() {
                           onClick={handleCopyDescriptions}
                           type="button"
                         >
-                          Copy Descriptions
+                          Copy Description
                         </button>
                       </div>
                       {(copySuccess || copyError) && (

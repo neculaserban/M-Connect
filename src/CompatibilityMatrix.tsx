@@ -143,7 +143,7 @@ export default function CompatibilityMatrix() {
                   🔍 Check devices, software and revision compatibility.
                 </span>
                 <br />
-                Instantly view compatibility between Mindray and third-party devices and systems.
+               Avoid mismatched combinations between Mindray products, third-party systems and software revisions.
               </div>
               <div className="flex flex-col gap-3 items-center max-w-5xl mx-auto bg-white/10 border border-white/20 rounded-2xl shadow-xl p-3 sm:p-4 md:p-6 backdrop-blur-md">
                 {/* Table selector buttons */}

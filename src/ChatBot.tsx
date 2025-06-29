@@ -101,12 +101,12 @@ export default function ChatBot() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <FeatureCard
                       icon="📄"
-                      title="Tender Assistence"
+                      title="Tender Assistance"
                       desc="Analyze tender documents to determine the manufacturer and product best aligned with the requirements, formulate clarifications to adjust specs to our products, autofill tender documents with proof of compliance based on the features requested."
                     />
 										<FeatureCard
                       icon="🛠️"
-                      title="Technical Solution Design"
+                      title="Technical Solution Designer"
                       desc="Develop detailed, technical solution proposals for client needs and specify deliverables and technical requirements based on the project configuration."
                     />
                     <FeatureCard
