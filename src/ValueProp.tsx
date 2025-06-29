@@ -137,7 +137,7 @@ export default function ValueProp() {
               </h2>
               <div className="text-xs text-neutral-300 text-center mb-4 font-medium tracking-wide">
                 <span className="inline-block bg-gradient-to-r from-emerald-400/20 to-violet-400/20 px-3 py-1 rounded-lg font-semibold text-emerald-200 mb-2">
-                  💡 Tap a card to flip
+                  🔁 Tap a card to flip
                 </span>
                 <br />
                 Discover the key value propositions for Mindray products and solutions.

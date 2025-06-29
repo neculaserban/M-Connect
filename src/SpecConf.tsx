@@ -275,7 +275,7 @@ export default function SpecConf() {
               </h2>
               <div className="text-xs text-neutral-300 text-center mb-4 font-medium tracking-wide">
                 <span className="inline-block bg-gradient-to-r from-emerald-400/20 to-violet-400/20 px-3 py-1 rounded-lg font-semibold text-emerald-200 mb-2">
-                  🛠️ Select features and generate project specs
+                  📄 Select features and generate project specs
                 </span>
                 <br />
                 Instantly generate a project specification table based on your selected features.
