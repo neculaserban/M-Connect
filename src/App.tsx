@@ -13,6 +13,7 @@ import ChatBot from './ChatBot'
 import NavigationHub from './NavigationHub'
 import { useAutoLogout } from './hooks/useAutoLogout'
 import { Analytics } from '@vercel/analytics/react'
+import NavDropdown from './components/NavDropdown'
 
 const LOGIN_KEY = 'mconnect_logged_in_user'
 const AUTO_LOGOUT_MS = 10 * 60 * 1000; // 10 minutes
@@ -173,25 +174,8 @@ function MainApp() {
         <div className="max-w-6xl mx-auto w-full">
           {/* Top bar with nav dropdown and login info */}
           <div className="flex flex-row justify-between items-center mb-2 gap-2 w-full">
-            {/* Left: More button */}
-            <div className="relative">
-              <button
-                className="flex items-center gap-2 px-2 py-1 rounded bg-white/10 border border-white/20 text-neutral-300 font-semibold shadow hover:bg-emerald-500 hover:text-white transition text-xs"
-                style={{
-                  fontWeight: 600,
-                  minHeight: '28px',
-                  minWidth: '80px',
-                  fontSize: '13px'
-                }}
-                onClick={() => navigate('/hub')}
-                type="button"
-                aria-haspopup="menu"
-                aria-expanded={false}
-              >
-                <span className="text-base" style={{ fontWeight: 900, letterSpacing: '0.04em' }}>☰</span>
-                <span className="font-semibold tracking-wide">More</span>
-              </button>
-            </div>
+            {/* Left: More dropdown */}
+            <NavDropdown />
             {/* Right: Logout */}
             <div className="flex items-center">
               <span className="text-neutral-200 text-xs mr-2">

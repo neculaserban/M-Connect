@@ -249,7 +249,7 @@ function NavigationHub() {
               </div>
               <div className="mt-8 text-center text-neutral-400 text-sm max-w-lg">
                 <span className="inline-block bg-white/10 border border-white/20 rounded-lg px-4 py-2 shadow">
-                  <b>Tip:</b> Use this hub to quickly access all M-Connect features!
+                  <b>Tip:</b> Use this hub to quickly access all M-Connect Sales Tools!
                 </span>
               </div>
             </div>
