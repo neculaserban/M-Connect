@@ -5,11 +5,12 @@ import LoginForm from './components/LoginForm'
 import { Product } from './data/products'
 import { fetchProducts, ProductsAndFeatures, FeatureRow } from './data/fetchProducts'
 import { fetchUsers, User } from './data/fetchUsers'
-import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route, useNavigate, Navigate } from 'react-router-dom'
 import SpecConf from './SpecConf'
 import ValueProp from './ValueProp'
 import CompatibilityMatrix from './CompatibilityMatrix'
 import ChatBot from './ChatBot'
+import NavigationHub from './NavigationHub'
 import { useAutoLogout } from './hooks/useAutoLogout'
 import { Analytics } from '@vercel/analytics/react'
 
@@ -75,7 +76,7 @@ function MainApp() {
     onLogout: () => {
       setLoggedInUser(null)
       setSelected([])
-      navigate('/')
+      navigate('/hub')
     },
     timeoutMs: AUTO_LOGOUT_MS,
     onAutoLoggedOut: () => setAutoLoggedOut(true),
@@ -123,7 +124,7 @@ function MainApp() {
   const handleLogout = () => {
     setLoggedInUser(null)
     setSelected([])
-    navigate('/')
+    navigate('/hub')
   }
 
   // Responsive top-left nav dropdown
@@ -294,11 +295,14 @@ export default function App() {
   return (
     <Router>
       <Routes>
+        <Route path="/hub" element={<NavigationHub />} />
         <Route path="/" element={<MainApp />} />
         <Route path="/specconf" element={<SpecConf />} />
         <Route path="/valueprop" element={<ValueProp />} />
         <Route path="/comparison-matrix" element={<CompatibilityMatrix />} />
         <Route path="/chatbot" element={<ChatBot />} />
+        {/* Redirect any unknown route to /hub */}
+        <Route path="*" element={<Navigate to="/hub" replace />} />
       </Routes>
     </Router>
   )
