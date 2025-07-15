@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAutoLogout } from './hooks/useAutoLogout'
 import NavDropdown from './components/NavDropdown'
@@ -55,6 +55,8 @@ function NavigationHub() {
   const [users, setUsers] = useState<User[]>([])
   const [userLoading, setUserLoading] = useState(true)
   const [loginError, setLoginError] = useState<string | null>(null)
+  const cardsRowRef = useRef<HTMLDivElement>(null)
+  const [isHoveringCards, setIsHoveringCards] = useState(false)
 
   // Fetch users for login
   useEffect(() => {
@@ -111,6 +113,42 @@ function NavigationHub() {
     navigate(path)
   }
 
+  // Mouse wheel horizontal scroll with looping
+  useEffect(() => {
+    const row = cardsRowRef.current
+    if (!row) return
+
+    function onWheel(e: WheelEvent) {
+      if (!isHoveringCards) return
+      if (Math.abs(e.deltaY) < Math.abs(e.deltaX)) return // ignore horizontal wheel
+      e.preventDefault()
+      const scrollAmount = e.deltaY
+      const maxScroll = row.scrollWidth - row.clientWidth
+
+      // Looping logic
+      if (scrollAmount > 0) {
+        // Scroll right
+        if (Math.abs(row.scrollLeft - maxScroll) < 2) {
+          // At end, loop to start
+          row.scrollLeft = 0
+        } else {
+          row.scrollLeft += scrollAmount
+        }
+      } else {
+        // Scroll left
+        if (row.scrollLeft <= 0) {
+          // At start, loop to end
+          row.scrollLeft = maxScroll
+        } else {
+          row.scrollLeft += scrollAmount
+        }
+      }
+    }
+
+    row.addEventListener('wheel', onWheel, { passive: false })
+    return () => row.removeEventListener('wheel', onWheel)
+  }, [isHoveringCards])
+
   // Show login if not logged in
   if (userLoading) {
     return (
@@ -161,7 +199,7 @@ function NavigationHub() {
       />
       {/* Top bar */}
       <div className="w-full max-w-6xl mx-auto flex justify-between items-center px-2 sm:px-4 py-2 z-20 relative">
-        {/* Left: More Dropdown */}
+        {/* Left: Tools Dropdown */}
         <NavDropdown />
         {/* Right: Logged in as and Logout */}
         {loggedInUser && (
@@ -201,12 +239,15 @@ function NavigationHub() {
               </div>
               <div className="w-full flex justify-center">
                 <div
+                  ref={cardsRowRef}
                   className="flex flex-row gap-6 overflow-x-auto py-4 px-2 scrollbar-thin scrollbar-thumb-emerald-400/60 scrollbar-track-white/10"
                   style={{
                     WebkitOverflowScrolling: 'touch',
                     scrollbarWidth: 'thin',
                     scrollbarColor: '#34d399 #23272a',
                   }}
+                  onMouseEnter={() => setIsHoveringCards(true)}
+                  onMouseLeave={() => setIsHoveringCards(false)}
                 >
                   {PAGES.map(page => (
                     <div
