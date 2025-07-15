@@ -192,7 +192,7 @@ export default function SpecConf() {
   const handleCopyDescriptions = async () => {
     if (!selectedDescs.length) return
     // Use tab-separated for best pasting into Excel/Word/Google Sheets
-    const header = 'Feature Requirement\tYes\tNo\tComments / Notes'
+    const header = 'Cerință tehnică / Criteriu minim obligatoriu\tConform (Da)\tNeconform (Nu)\tSpecificații / Observații / Dovezi tehnice'
     const rows = selectedDescs.map(d => {
       // Fallback to English if selectedLang is missing
       const desc = d.descriptions[selectedLang] || d.descriptions['en'] || ''
