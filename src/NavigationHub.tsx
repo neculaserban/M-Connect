@@ -81,7 +81,7 @@ function NavigationHub() {
     onLogout: () => {
       setLoggedInUser(null)
       localStorage.removeItem(LOGIN_KEY)
-      setTimeout(() => navigate('/hub'), 0)
+      // Do NOT navigate, just show login form in place
     },
     timeoutMs: AUTO_LOGOUT_MS,
     onAutoLoggedOut: () => setAutoLoggedOut(true),
@@ -98,7 +98,7 @@ function NavigationHub() {
   const handleLogout = () => {
     setLoggedInUser(null)
     localStorage.removeItem(LOGIN_KEY)
-    navigate('/hub')
+    // Do NOT navigate, just show login form in place
   }
 
   const handleLogin = (username: string) => {
@@ -133,12 +133,14 @@ function NavigationHub() {
             willChange: 'opacity, filter',
           }}
         />
-        <div className="w-full max-w-6xl mx-auto flex justify-between items-center px-2 sm:px-4 py-2 z-20 relative">
-          <NavDropdown />
-        </div>
         <LoginForm users={users} onLogin={handleLogin} />
         {loginError && (
           <div className="text-red-400 text-center text-sm mt-4">{loginError}</div>
+        )}
+        {autoLoggedOut && (
+          <div className="mb-4 text-center text-red-400 text-sm font-semibold bg-white/10 border border-red-400/30 rounded-lg py-2 px-4 shadow mt-4">
+            You have been automatically logged off due to inactivity.
+          </div>
         )}
       </div>
     )
@@ -188,14 +190,14 @@ function NavigationHub() {
           <section className="relative py-4 px-1">
             <div className="relative z-10 flex flex-col items-center gap-2">
               <h2 className="text-2xl sm:text-4xl font-extrabold mb-1 text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-violet-400 tracking-tight text-center drop-shadow-[0_2px_8px_rgba(16,185,129,0.15)]">
-                M-Connect Navigation Hub
+                M-Connect Sales Platform
               </h2>
               <div className="text-xs text-neutral-300 text-center mb-4 font-medium tracking-wide">
                 <span className="inline-block bg-gradient-to-r from-emerald-400/20 to-violet-400/20 px-3 py-1 rounded-lg font-semibold text-emerald-200 mb-2">
-                  🚀 Select a card to access a feature
+                  🚀 Tap a Card to Launch a Sales Tool
                 </span>
                 <br />
-                All tools and resources at your fingertips.
+                Boost your sales — everything you need is right at your fingertips.
               </div>
               <div className="w-full flex justify-center">
                 <div
