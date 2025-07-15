@@ -101,9 +101,11 @@ function CompetitiveMatrixApp() {
     setSelected((prev) => prev.filter((p) => p.id !== id))
   }
 
+  // FIX: After login, always redirect to hub (main page)
   const handleLogin = (username: string) => {
     setLoggedInUser(username)
     setAutoLoggedOut(false)
+    navigate('/')
   }
 
   const handleLogout = () => {
@@ -158,6 +160,7 @@ function CompetitiveMatrixApp() {
     )
   }
 
+  // FIX: Use the same top bar structure as ChatBot/etc for perfect alignment
   return (
     <div className="min-h-screen flex flex-col relative overflow-x-hidden">
       {/* Animated GIF background */}
@@ -171,37 +174,33 @@ function CompetitiveMatrixApp() {
           willChange: 'opacity, filter',
         }}
       />
+      {/* Top bar - match all other pages */}
+      <div className="w-full max-w-6xl mx-auto flex justify-between items-center px-2 sm:px-4 py-2 z-20 relative">
+        {/* Left: Tools Dropdown */}
+        <NavDropdown />
+        {/* Right: Logged in as and Logout */}
+        {loggedInUser && (
+          <div className="flex items-center ml-2 sm:ml-0">
+            <span className="text-neutral-200 text-xs mr-2 whitespace-nowrap">
+              Logged in as <b>{loggedInUser}</b>
+            </span>
+            <button
+              className="text-xs px-2 py-1 sm:px-3 sm:py-1 rounded bg-white/10 border border-white/20 text-neutral-300 hover:bg-emerald-500 hover:text-white transition"
+              onClick={handleLogout}
+            >
+              Logout
+            </button>
+          </div>
+        )}
+      </div>
+      {/* Auto logoff message */}
+      {autoLoggedOut && (
+        <div className="mb-4 text-center text-red-400 text-sm font-semibold bg-white/10 border border-red-400/30 rounded-lg py-2 px-4 shadow">
+          You have been automatically logged off due to inactivity.
+        </div>
+      )}
       <main className="flex-1 w-full relative z-10">
         <div className="max-w-6xl mx-auto w-full">
-          {/* Top bar with nav dropdown and login info */}
-          <div className="flex flex-row justify-between items-center mb-2 gap-2 w-full">
-            {/* Left: More dropdown */}
-            <NavDropdown />
-            {/* Right: Logout */}
-            <div className="flex items-center">
-              <span className="text-neutral-200 text-xs mr-2">
-                Logged in as <b>{loggedInUser}</b>
-              </span>
-              <button
-                className="text-xs px-2 py-1 rounded bg-white/10 border border-white/20 text-neutral-300 font-semibold shadow hover:bg-emerald-500 hover:text-white transition"
-                style={{
-                  fontWeight: 600,
-                  minHeight: '28px',
-                  minWidth: '80px',
-                  fontSize: '13px'
-                }}
-                onClick={handleLogout}
-              >
-                Logout
-              </button>
-            </div>
-          </div>
-          {/* Auto logoff message */}
-          {autoLoggedOut && (
-            <div className="mb-4 text-center text-red-400 text-sm font-semibold bg-white/10 border border-red-400/30 rounded-lg py-2 px-4 shadow">
-              You have been automatically logged off due to inactivity.
-            </div>
-          )}
           <Catalogue
             onSelect={handleSelect}
             selected={selected}

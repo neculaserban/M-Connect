@@ -44,7 +44,7 @@ export default function NavDropdown() {
         aria-expanded={open}
       >
         <span className="text-base" style={{ fontWeight: 900, letterSpacing: '0.04em' }}>☰</span>
-        <span className="font-semibold tracking-wide">More</span>
+        <span className="font-semibold tracking-wide">Tools</span>
       </button>
       {open && (
         <div
