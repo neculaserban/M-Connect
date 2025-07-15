@@ -101,17 +101,22 @@ function CompetitiveMatrixApp() {
     setSelected((prev) => prev.filter((p) => p.id !== id))
   }
 
-  // FIX: After login, always redirect to hub (main page)
+  // After login, always redirect to hub (main page)
   const handleLogin = (username: string) => {
     setLoggedInUser(username)
     setAutoLoggedOut(false)
-    navigate('/')
+    navigate('/', { replace: true })
   }
 
   const handleLogout = () => {
     setLoggedInUser(null)
     setSelected([])
     // Do NOT navigate, just show login form in place
+  }
+
+  // CRITICAL: If not logged in, redirect to hub (main page) to show the login form there
+  if (!loggedInUser) {
+    return <Navigate to="/" replace />
   }
 
   if (loading || userLoading) {
@@ -131,31 +136,6 @@ function CompetitiveMatrixApp() {
         <div className="mt-2 text-xs text-neutral-400">
           Please check your data
         </div>
-      </div>
-    )
-  }
-
-  // Unified login page (centered, with background, like other pages)
-  if (!loggedInUser) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center relative overflow-x-hidden">
-        {/* Animated GIF background */}
-        <div
-          aria-hidden="true"
-          className="fixed inset-0 z-0 pointer-events-none"
-          style={{
-            background: `url('https://www.mindray.com/content/dam/xpace/en/products-solutions/products/patient-monitoring/centralized-mornitoring/benevision-cms/p12-s3.gif') center center / cover no-repeat`,
-            opacity: 0.18,
-            filter: 'blur(2.5px) brightness(0.7) saturate(1.2)',
-            willChange: 'opacity, filter',
-          }}
-        />
-        <LoginForm users={users} onLogin={handleLogin} />
-        {autoLoggedOut && (
-          <div className="mb-4 text-center text-red-400 text-sm font-semibold bg-white/10 border border-red-400/30 rounded-lg py-2 px-4 shadow mt-4">
-            You have been automatically logged off due to inactivity.
-          </div>
-        )}
       </div>
     )
   }
