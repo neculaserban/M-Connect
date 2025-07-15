@@ -12,7 +12,7 @@ const PAGES = [
   {
     key: 'competitive',
     label: 'Competitive Matrix',
-    path: '/',
+    path: '/competitive',
     icon: '🆚',
     desc: 'Compare Mindray and competitor products side by side.',
   },

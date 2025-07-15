@@ -18,7 +18,8 @@ import NavDropdown from './components/NavDropdown'
 const LOGIN_KEY = 'mconnect_logged_in_user'
 const AUTO_LOGOUT_MS = 10 * 60 * 1000; // 10 minutes
 
-function MainApp() {
+// Competitive Matrix page logic, now at /competitive
+function CompetitiveMatrixApp() {
   const [products, setProducts] = useState<Product[]>([])
   const [featureRows, setFeatureRows] = useState<FeatureRow[]>([])
   const [selected, setSelected] = useState<Product[]>([])
@@ -221,14 +222,15 @@ export default function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/hub" element={<NavigationHub />} />
-        <Route path="/" element={<MainApp />} />
+        {/* NavigationHub is now the main page */}
+        <Route path="/" element={<NavigationHub />} />
+        <Route path="/competitive" element={<CompetitiveMatrixApp />} />
         <Route path="/specconf" element={<SpecConf />} />
         <Route path="/valueprop" element={<ValueProp />} />
         <Route path="/comparison-matrix" element={<CompatibilityMatrix />} />
         <Route path="/chatbot" element={<ChatBot />} />
-        {/* Redirect any unknown route to /hub */}
-        <Route path="*" element={<Navigate to="/hub" replace />} />
+        {/* Redirect any unknown route to / */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>
   )

@@ -1,8 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 
+// Update the path for Competitive Matrix to '/competitive'
 const NAV_ITEMS = [
-  { label: 'Competitive Matrix', path: '/' },
+  { label: 'Competitive Matrix', path: '/competitive' },
   { label: 'Compatibility Matrix', path: '/comparison-matrix' },
   { label: 'Specification Generator', path: '/specconf' },
   { label: 'Value Proposition', path: '/valueprop' },
