@@ -8,6 +8,9 @@ import { fetchUsers, User } from './data/fetchUsers'
 const LOGIN_KEY = 'mconnect_logged_in_user'
 const AUTO_LOGOUT_MS = 10 * 60 * 1000
 
+const CARD_HEIGHT = 250
+const CARD_FADE_WIDTH = 120 // wider for enlarged card coverage
+
 const PAGES = [
   {
     key: 'competitive',
@@ -237,14 +240,34 @@ function NavigationHub() {
                 <br />
                 Boost your sales — everything you need is right at your fingertips.
               </div>
-              <div className="w-full flex justify-center">
+              <div className="w-full flex justify-center relative" style={{ minHeight: CARD_HEIGHT }}>
+                {/* Ultra smooth, card-height, centered, rotated fade overlays */}
+                <div
+                  className="pointer-events-none absolute left-0 z-20 fade-left-hub"
+                  style={{
+                    top: '50%',
+                    transform: `translateY(-50%)`,
+                    height: `${CARD_HEIGHT}px`,
+                    width: `${CARD_FADE_WIDTH}px`,
+                  }}
+                />
+                <div
+                  className="pointer-events-none absolute right-0 z-20 fade-right-hub"
+                  style={{
+                    top: '50%',
+                    transform: `translateY(-50%)`,
+                    height: `${CARD_HEIGHT}px`,
+                    width: `${CARD_FADE_WIDTH}px`,
+                  }}
+                />
                 <div
                   ref={cardsRowRef}
-                  className="flex flex-row gap-6 overflow-x-auto py-4 px-2 scrollbar-thin scrollbar-thumb-emerald-400/60 scrollbar-track-white/10"
+                  className="flex flex-row gap-5 sm:gap-6 overflow-x-auto py-4 px-2 scrollbar-hide"
                   style={{
                     WebkitOverflowScrolling: 'touch',
-                    scrollbarWidth: 'thin',
-                    scrollbarColor: '#34d399 #23272a',
+                    scrollbarWidth: 'none',
+                    msOverflowStyle: 'none',
+                    maxWidth: '100%',
                   }}
                   onMouseEnter={() => setIsHoveringCards(true)}
                   onMouseLeave={() => setIsHoveringCards(false)}
@@ -262,23 +285,23 @@ function NavigationHub() {
                           hover:scale-105 hover:border-emerald-400
                         `}
                         style={{
-                          width: 320,
-                          minWidth: 240,
-                          maxWidth: 340,
-                          height: 260,
-                          margin: '0 0.5rem',
+                          width: 240,
+                          minWidth: 180,
+                          maxWidth: 260,
+                          height: CARD_HEIGHT,
+                          margin: '0 0.25rem',
                           fontFamily: 'inherit',
                         }}
                         onClick={() => handleCardClick(page.path)}
                         tabIndex={0}
                         aria-label={`Go to ${page.label}`}
                       >
-                        <span className="text-4xl mb-2 drop-shadow">{page.icon}</span>
-                        <span className="w-full break-words text-center font-bold text-neutral-100 text-lg mb-2">
+                        <span className="text-3xl mb-2 drop-shadow">{page.icon}</span>
+                        <span className="w-full break-words text-center font-bold text-neutral-100 text-base mb-2">
                           {page.label}
                         </span>
-                        <span className="text-neutral-200 font-medium text-[13px] px-4 py-2 break-words" style={{
-                          fontSize: '0.98rem',
+                        <span className="text-neutral-200 font-medium text-[13px] px-3 py-2 break-words" style={{
+                          fontSize: '0.95rem',
                           lineHeight: '1.35',
                         }}>
                           {page.desc}
@@ -301,29 +324,44 @@ function NavigationHub() {
               .transform-style-preserve-3d {
                 transform-style: preserve-3d;
               }
-              /* Custom scrollbar for horizontal row */
-              .scrollbar-thin {
-                scrollbar-width: thin;
+              /* Hide scrollbar for all browsers */
+              .scrollbar-hide {
+                scrollbar-width: none;
+                -ms-overflow-style: none;
               }
-              .scrollbar-thumb-emerald-400\\/60::-webkit-scrollbar-thumb {
-                background: linear-gradient(135deg, #34d399 0%, #a78bfa 100%);
-                border-radius: 8px;
+              .scrollbar-hide::-webkit-scrollbar {
+                display: none;
               }
-              .scrollbar-track-white\\/10::-webkit-scrollbar-track {
-                background: rgba(24,24,27,0.15);
-                border-radius: 8px;
+              /* Ultra smooth, card-height, centered, rotated fade overlays */
+              .fade-left-hub {
+                background: linear-gradient(
+                  270deg,
+                  rgba(32,32,40,0.38) 0%,
+                  rgba(32,32,40,0.28) 20%,
+                  rgba(32,32,40,0.18) 40%,
+                  rgba(32,32,40,0.10) 60%,
+                  rgba(32,32,40,0.04) 80%,
+                  rgba(32,32,40,0.00) 100%
+                );
+                backdrop-filter: blur(2.5px);
+                -webkit-backdrop-filter: blur(2.5px);
+                border-top-left-radius: 18px;
+                border-bottom-left-radius: 18px;
               }
-              .scrollbar-thin::-webkit-scrollbar {
-                height: 8px;
-                background: transparent;
-              }
-              .scrollbar-thin::-webkit-scrollbar-thumb {
-                background: linear-gradient(135deg, #34d399 0%, #a78bfa 100%);
-                border-radius: 8px;
-              }
-              .scrollbar-thin::-webkit-scrollbar-track {
-                background: rgba(24,24,27,0.15);
-                border-radius: 8px;
+              .fade-right-hub {
+                background: linear-gradient(
+                  90deg,
+                  rgba(32,32,40,0.38) 0%,
+                  rgba(32,32,40,0.28) 20%,
+                  rgba(32,32,40,0.18) 40%,
+                  rgba(32,32,40,0.10) 60%,
+                  rgba(32,32,40,0.04) 80%,
+                  rgba(32,32,40,0.00) 100%
+                );
+                backdrop-filter: blur(2.5px);
+                -webkit-backdrop-filter: blur(2.5px);
+                border-top-right-radius: 18px;
+                border-bottom-right-radius: 18px;
               }
             `}</style>
           </section>
