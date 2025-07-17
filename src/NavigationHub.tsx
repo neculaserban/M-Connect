@@ -77,6 +77,7 @@ function NavigationHub() {
   const [loginError, setLoginError] = useState<string | null>(null)
   const [carouselIndex, setCarouselIndex] = useState(0)
   const [isDragging, setIsDragging] = useState(false)
+  const [isHovering, setIsHovering] = useState(false)
   const dragStartX = useRef<number | null>(null)
   const dragDelta = useRef(0)
   const carouselRef = useRef<HTMLDivElement>(null)
@@ -142,21 +143,20 @@ function NavigationHub() {
     goTo(carouselIndex + 1)
   }, [carouselIndex, goTo])
 
-  // Mouse wheel navigation
+  // Mouse wheel navigation (only when hovering)
   useEffect(() => {
     const handler = (e: WheelEvent) => {
+      if (!isHovering) return
       if (!carouselRef.current) return
-      if (document.activeElement && carouselRef.current.contains(document.activeElement as Node)) {
-        if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
-          e.preventDefault()
-          if (e.deltaY > 0) goRight()
-          else goLeft()
-        }
+      if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+        e.preventDefault()
+        if (e.deltaY > 0) goRight()
+        else goLeft()
       }
     }
     window.addEventListener('wheel', handler, { passive: false })
     return () => window.removeEventListener('wheel', handler)
-  }, [goLeft, goRight])
+  }, [isHovering, goLeft, goRight])
 
   // Keyboard navigation
   useEffect(() => {
@@ -336,7 +336,7 @@ function NavigationHub() {
               </h2>
               <div className="text-xs text-neutral-300 text-center mb-4 font-medium tracking-wide">
                 <span className="inline-block bg-gradient-to-r from-emerald-400/20 to-violet-400/20 px-3 py-1 rounded-lg font-semibold text-emerald-200 mb-2">
-                  🚀 Swipe, scroll, or use arrows to select a Sales Tool
+                  🚀 Swipe, scroll or use arrows to select a Sales Tool
                 </span>
                 <br />
                 Boost your sales — everything you need is right at your fingertips.
@@ -365,6 +365,8 @@ function NavigationHub() {
                 onTouchStart={onDragStart}
                 onTouchMove={isDragging ? onDragMove : undefined}
                 onTouchEnd={onDragEnd}
+                onMouseEnter={() => setIsHovering(true)}
+                onMouseLeave={() => setIsHovering(false)}
                 aria-label="Main navigation carousel"
               >
                 <div className="carousel-inner" style={{
@@ -380,29 +382,11 @@ function NavigationHub() {
                 }}>
                   {cards}
                 </div>
-                {/* Carousel navigation arrows */}
-                <button
-                  className="carousel-arrow carousel-arrow-left"
-                  aria-label="Previous"
-                  onClick={goLeft}
-                  tabIndex={0}
-                  type="button"
-                >
-                  <span aria-hidden="true">‹</span>
-                </button>
-                <button
-                  className="carousel-arrow carousel-arrow-right"
-                  aria-label="Next"
-                  onClick={goRight}
-                  tabIndex={0}
-                  type="button"
-                >
-                  <span aria-hidden="true">›</span>
-                </button>
+                {/* Removed carousel navigation arrows */}
               </div>
               <div className="mt-8 text-center text-neutral-400 text-sm max-w-lg">
                 <span className="inline-block bg-white/10 border border-white/20 rounded-lg px-4 py-2 shadow">
-                  <b>Tip:</b> Use this hub to quickly access all M-Connect Sales Tools!
+                  <b>Tip:</b> Use this hub to quickly access any M-Connect Sales Tool!
                 </span>
               </div>
             </div>
@@ -453,54 +437,12 @@ function NavigationHub() {
                 box-shadow: 0 8px 32px 0 rgba(52,211,153,0.18), 0 2px 8px 0 rgba(168,139,250,0.12);
                 z-index: 2;
               }
-              .carousel-arrow {
-                position: absolute;
-                top: 50%;
-                transform: translateY(-50%);
-                background: linear-gradient(135deg, #23272a 60%, #44454a 100%);
-                border: 2px solid #34d39944;
-                color: #a7f3d0;
-                font-size: 2.5rem;
-                font-weight: bold;
-                border-radius: 50%;
-                width: 48px;
-                height: 48px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                cursor: pointer;
-                z-index: 10;
-                opacity: 0.85;
-                transition: background 0.2s, color 0.2s, border 0.2s;
-                box-shadow: 0 2px 8px 0 rgba(52,211,153,0.08);
-                outline: none;
-                user-select: none;
-              }
-              .carousel-arrow-left {
-                left: -32px;
-              }
-              .carousel-arrow-right {
-                right: -32px;
-              }
-              .carousel-arrow:hover, .carousel-arrow:focus {
-                background: #34d399;
-                color: #fff;
-                border: 2px solid #a78bfa;
-                outline: none;
-              }
               @media (max-width: 700px) {
                 .carousel-card, .carousel-card-center {
                   min-width: 160px;
                   max-width: 180px;
                   width: 170px;
                   height: 200px;
-                }
-                .carousel-arrow, .carousel-arrow-left, .carousel-arrow-right {
-                  width: 36px;
-                  height: 36px;
-                  font-size: 1.5rem;
-                  left: -18px;
-                  right: -18px;
                 }
                 .carousel-inner {
                   height: 200px;
