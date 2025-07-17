@@ -264,13 +264,13 @@ function NavigationHub() {
           transition: isDragging
             ? 'none'
             : 'transform 0.45s cubic-bezier(.4,2,.6,1), opacity 0.3s, filter 0.3s, box-shadow 0.3s',
-          pointerEvents: isDragging ? 'none' : 'auto',
+          // pointerEvents: isDragging ? 'none' : 'auto', // REMOVE this line!
         }}
         tabIndex={isCenter ? 0 : -1}
         aria-label={`Go to ${page.label}`}
         onClick={() => navigate(page.path)}
         onKeyDown={e => {
-          if ((e.key === 'Enter' || e.key === ' ') && isCenter) {
+          if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault()
             navigate(page.path)
           }
@@ -382,7 +382,7 @@ function NavigationHub() {
                 }}>
                   {cards}
                 </div>
-                {/* Removed carousel navigation arrows */}
+                {/* No carousel navigation arrows */}
               </div>
               <div className="mt-8 text-center text-neutral-400 text-sm max-w-lg">
                 <span className="inline-block bg-white/10 border border-white/20 rounded-lg px-4 py-2 shadow">
