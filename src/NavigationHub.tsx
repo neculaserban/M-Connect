@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAutoLogout } from './hooks/useAutoLogout'
 import NavDropdown from './components/NavDropdown'
@@ -8,38 +8,7 @@ import { fetchUsers, User } from './data/fetchUsers'
 const LOGIN_KEY = 'mconnect_logged_in_user'
 const AUTO_LOGOUT_MS = 10 * 60 * 1000
 
-const CARD_HEIGHT = 250
-const CARD_FADE_WIDTH = 120 // wider for enlarged card coverage
-
 const PAGES = [
-  {
-    key: 'competitive',
-    label: 'Competitive Matrix',
-    path: '/competitive',
-    icon: '🆚',
-    desc: 'Compare Mindray and competitor products side by side.',
-  },
-  {
-    key: 'vseriespm',
-    label: 'V-Series PM Matrix',
-    path: '/vseriespm',
-    icon: '🩺',
-    desc: 'Compare flagship vital signs patient monitors (V-Series).',
-  },
-  {
-    key: 'tlaivd',
-    label: 'TLA IVD Matrix',
-    path: '/tlaivd',
-    icon: '🧪',
-    desc: 'Compare TLA IVD products and features.',
-  },
-  {
-    key: 'compatibility',
-    label: 'Compatibility Matrix',
-    path: '/comparison-matrix',
-    icon: '🔗',
-    desc: 'Check device, software, and revision compatibility.',
-  },
   {
     key: 'specconf',
     label: 'Specification Generator',
@@ -47,12 +16,33 @@ const PAGES = [
     icon: '📝',
     desc: 'Generate project specs from selected features.',
   },
+	{
+    key: 'competitive',
+    label: 'M-Connect Matrix',
+    path: '/competitive',
+    icon: '🖥️🖧🖥️',
+    desc: 'Compare Mindray M-Connect and competitor products side by side.',
+  },
   {
+    key: 'vseriespm',
+    label: 'V-Series PM Matrix',
+    path: '/vseriespm',
+    icon: '🫀🫁',
+    desc: 'Compare flagship vital signs patient monitors (V-Series).',
+  },
+    {
     key: 'valueprop',
     label: 'Value Proposition',
     path: '/valueprop',
-    icon: '💡',
+    icon: '🤝',
     desc: 'Explore key value propositions for Mindray solutions.',
+  },
+	{
+    key: 'tlaivd',
+    label: 'TLA IVD Matrix',
+    path: '/tlaivd',
+    icon: '🧪',
+    desc: 'Compare TLA IVD products and features.',
   },
   {
     key: 'chatbot',
@@ -61,7 +51,20 @@ const PAGES = [
     icon: '🤖',
     desc: 'AI-powered sales assistant (coming soon).',
   },
+	{
+    key: 'compatibility',
+    label: 'Compatibility Matrix',
+    path: '/comparison-matrix',
+    icon: '🔗',
+    desc: 'Check device, software, and revision compatibility.',
+  },
 ]
+
+const VISIBLE_CARDS = 5 // Odd number for symmetry
+
+function mod(n: number, m: number) {
+  return ((n % m) + m) % m
+}
 
 function NavigationHub() {
   const navigate = useNavigate()
@@ -72,8 +75,11 @@ function NavigationHub() {
   const [users, setUsers] = useState<User[]>([])
   const [userLoading, setUserLoading] = useState(true)
   const [loginError, setLoginError] = useState<string | null>(null)
-  const cardsRowRef = useRef<HTMLDivElement>(null)
-  const [isHoveringCards, setIsHoveringCards] = useState(false)
+  const [carouselIndex, setCarouselIndex] = useState(0)
+  const [isDragging, setIsDragging] = useState(false)
+  const dragStartX = useRef<number | null>(null)
+  const dragDelta = useRef(0)
+  const carouselRef = useRef<HTMLDivElement>(null)
 
   // Fetch users for login
   useEffect(() => {
@@ -100,7 +106,6 @@ function NavigationHub() {
     onLogout: () => {
       setLoggedInUser(null)
       localStorage.removeItem(LOGIN_KEY)
-      // Do NOT navigate, just show login form in place
     },
     timeoutMs: AUTO_LOGOUT_MS,
     onAutoLoggedOut: () => setAutoLoggedOut(true),
@@ -117,7 +122,6 @@ function NavigationHub() {
   const handleLogout = () => {
     setLoggedInUser(null)
     localStorage.removeItem(LOGIN_KEY)
-    // Do NOT navigate, just show login form in place
   }
 
   const handleLogin = (username: string) => {
@@ -125,46 +129,76 @@ function NavigationHub() {
     setAutoLoggedOut(false)
   }
 
-  // Card click: navigate to page
-  const handleCardClick = (path: string) => {
-    navigate(path)
-  }
+  // Carousel navigation
+  const goTo = useCallback((idx: number) => {
+    setCarouselIndex(mod(idx, PAGES.length))
+  }, [])
 
-  // Mouse wheel horizontal scroll with looping
+  const goLeft = useCallback(() => {
+    goTo(carouselIndex - 1)
+  }, [carouselIndex, goTo])
+
+  const goRight = useCallback(() => {
+    goTo(carouselIndex + 1)
+  }, [carouselIndex, goTo])
+
+  // Mouse wheel navigation
   useEffect(() => {
-    const row = cardsRowRef.current
-    if (!row) return
-
-    function onWheel(e: WheelEvent) {
-      if (!isHoveringCards) return
-      if (Math.abs(e.deltaY) < Math.abs(e.deltaX)) return // ignore horizontal wheel
-      e.preventDefault()
-      const scrollAmount = e.deltaY
-      const maxScroll = row.scrollWidth - row.clientWidth
-
-      // Looping logic
-      if (scrollAmount > 0) {
-        // Scroll right
-        if (Math.abs(row.scrollLeft - maxScroll) < 2) {
-          // At end, loop to start
-          row.scrollLeft = 0
-        } else {
-          row.scrollLeft += scrollAmount
-        }
-      } else {
-        // Scroll left
-        if (row.scrollLeft <= 0) {
-          // At start, loop to end
-          row.scrollLeft = maxScroll
-        } else {
-          row.scrollLeft += scrollAmount
+    const handler = (e: WheelEvent) => {
+      if (!carouselRef.current) return
+      if (document.activeElement && carouselRef.current.contains(document.activeElement as Node)) {
+        if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+          e.preventDefault()
+          if (e.deltaY > 0) goRight()
+          else goLeft()
         }
       }
     }
+    window.addEventListener('wheel', handler, { passive: false })
+    return () => window.removeEventListener('wheel', handler)
+  }, [goLeft, goRight])
 
-    row.addEventListener('wheel', onWheel, { passive: false })
-    return () => row.removeEventListener('wheel', onWheel)
-  }, [isHoveringCards])
+  // Keyboard navigation
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (!carouselRef.current) return
+      if (document.activeElement && carouselRef.current.contains(document.activeElement as Node)) {
+        if (e.key === 'ArrowLeft') {
+          e.preventDefault()
+          goLeft()
+        } else if (e.key === 'ArrowRight') {
+          e.preventDefault()
+          goRight()
+        } else if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault()
+          navigate(PAGES[carouselIndex].path)
+        }
+      }
+    }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [carouselIndex, goLeft, goRight, navigate])
+
+  // Drag/swipe navigation
+  const onDragStart = (e: React.MouseEvent | React.TouchEvent) => {
+    setIsDragging(true)
+    dragStartX.current = 'touches' in e ? e.touches[0].clientX : e.clientX
+    dragDelta.current = 0
+  }
+  const onDragMove = (e: React.MouseEvent | React.TouchEvent) => {
+    if (!isDragging || dragStartX.current === null) return
+    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX
+    dragDelta.current = clientX - dragStartX.current
+  }
+  const onDragEnd = () => {
+    setIsDragging(false)
+    if (Math.abs(dragDelta.current) > 40) {
+      if (dragDelta.current > 0) goLeft()
+      else goRight()
+    }
+    dragStartX.current = null
+    dragDelta.current = 0
+  }
 
   // Show login if not logged in
   if (userLoading) {
@@ -201,6 +235,61 @@ function NavigationHub() {
     )
   }
 
+  // Carousel rendering
+  const half = Math.floor(VISIBLE_CARDS / 2)
+  const cards = []
+  for (let i = -half; i <= half; i++) {
+    const idx = mod(carouselIndex + i, PAGES.length)
+    const page = PAGES[idx]
+    const offset = i
+    const isCenter = offset === 0
+    const angle = offset * -35
+    const scale = isCenter ? 1.15 : 0.85
+    const z = isCenter ? 2 : 1
+    const opacity = isCenter ? 1 : 0.55
+    const blur = isCenter ? 'none' : 'blur(1.5px)'
+    const shadow = isCenter
+      ? '0 8px 32px 0 rgba(52,211,153,0.18), 0 2px 8px 0 rgba(168,139,250,0.12)'
+      : '0 2px 8px 0 rgba(52,211,153,0.08)'
+    cards.push(
+      <button
+        key={page.key}
+        className={`carousel-card${isCenter ? ' carousel-card-center' : ''}`}
+        style={{
+          transform: `translateX(${offset * 60}%) scale(${scale}) rotateY(${angle}deg)`,
+          zIndex: z,
+          opacity,
+          filter: blur,
+          boxShadow: shadow,
+          transition: isDragging
+            ? 'none'
+            : 'transform 0.45s cubic-bezier(.4,2,.6,1), opacity 0.3s, filter 0.3s, box-shadow 0.3s',
+          pointerEvents: isDragging ? 'none' : 'auto',
+        }}
+        tabIndex={isCenter ? 0 : -1}
+        aria-label={`Go to ${page.label}`}
+        onClick={() => navigate(page.path)}
+        onKeyDown={e => {
+          if ((e.key === 'Enter' || e.key === ' ') && isCenter) {
+            e.preventDefault()
+            navigate(page.path)
+          }
+        }}
+      >
+        <span className="text-4xl mb-2 drop-shadow">{page.icon}</span>
+        <span className="w-full break-words text-center font-bold text-neutral-100 text-base mb-2">
+          {page.label}
+        </span>
+        <span className="text-neutral-200 font-medium text-[13px] px-3 py-2 break-words" style={{
+          fontSize: '0.95rem',
+          lineHeight: '1.35',
+        }}>
+          {page.desc}
+        </span>
+      </button>
+    )
+  }
+
   return (
     <div className="min-h-screen flex flex-col relative overflow-x-hidden">
       {/* Animated GIF background */}
@@ -216,9 +305,7 @@ function NavigationHub() {
       />
       {/* Top bar */}
       <div className="w-full max-w-6xl mx-auto flex justify-between items-center px-2 sm:px-4 py-2 z-20 relative">
-        {/* Left: Tools Dropdown */}
         <NavDropdown />
-        {/* Right: Logged in as and Logout */}
         {loggedInUser && (
           <div className="flex items-center ml-2 sm:ml-0">
             <span className="text-neutral-200 text-xs mr-2 whitespace-nowrap">
@@ -249,81 +336,69 @@ function NavigationHub() {
               </h2>
               <div className="text-xs text-neutral-300 text-center mb-4 font-medium tracking-wide">
                 <span className="inline-block bg-gradient-to-r from-emerald-400/20 to-violet-400/20 px-3 py-1 rounded-lg font-semibold text-emerald-200 mb-2">
-                  🚀 Tap a Card to Launch a Sales Tool
+                  🚀 Swipe, scroll, or use arrows to select a Sales Tool
                 </span>
                 <br />
                 Boost your sales — everything you need is right at your fingertips.
               </div>
-              <div className="w-full flex justify-center relative" style={{ minHeight: CARD_HEIGHT }}>
-                {/* Ultra smooth, card-height, centered, rotated fade overlays */}
-                <div
-                  className="pointer-events-none absolute left-0 z-20 fade-left-hub"
-                  style={{
-                    top: '50%',
-                    transform: `translateY(-50%)`,
-                    height: `${CARD_HEIGHT}px`,
-                    width: `${CARD_FADE_WIDTH}px`,
-                  }}
-                />
-                <div
-                  className="pointer-events-none absolute right-0 z-20 fade-right-hub"
-                  style={{
-                    top: '50%',
-                    transform: `translateY(-50%)`,
-                    height: `${CARD_HEIGHT}px`,
-                    width: `${CARD_FADE_WIDTH}px`,
-                  }}
-                />
-                <div
-                  ref={cardsRowRef}
-                  className="flex flex-row gap-5 sm:gap-6 overflow-x-auto py-4 px-2 scrollbar-hide"
-                  style={{
-                    WebkitOverflowScrolling: 'touch',
-                    scrollbarWidth: 'none',
-                    msOverflowStyle: 'none',
-                    maxWidth: '100%',
-                  }}
-                  onMouseEnter={() => setIsHoveringCards(true)}
-                  onMouseLeave={() => setIsHoveringCards(false)}
-                >
-                  {PAGES.map(page => (
-                    <div
-                      key={page.key}
-                      className="group perspective flex-shrink-0"
-                      style={{ perspective: '1200px', minWidth: 0 }}
-                    >
-                      <button
-                        className={`relative transition-transform duration-300 transform-style-preserve-3d cursor-pointer focus:outline-none
-                          bg-gradient-to-br from-emerald-400/20 to-violet-400/20 border border-white/20 shadow-xl
-                          rounded-xl flex flex-col items-center justify-center text-center
-                          hover:scale-105 hover:border-emerald-400
-                        `}
-                        style={{
-                          width: 240,
-                          minWidth: 180,
-                          maxWidth: 260,
-                          height: CARD_HEIGHT,
-                          margin: '0 0.25rem',
-                          fontFamily: 'inherit',
-                        }}
-                        onClick={() => handleCardClick(page.path)}
-                        tabIndex={0}
-                        aria-label={`Go to ${page.label}`}
-                      >
-                        <span className="text-3xl mb-2 drop-shadow">{page.icon}</span>
-                        <span className="w-full break-words text-center font-bold text-neutral-100 text-base mb-2">
-                          {page.label}
-                        </span>
-                        <span className="text-neutral-200 font-medium text-[13px] px-3 py-2 break-words" style={{
-                          fontSize: '0.95rem',
-                          lineHeight: '1.35',
-                        }}>
-                          {page.desc}
-                        </span>
-                      </button>
-                    </div>
-                  ))}
+              <div
+                className="carousel-outer"
+                ref={carouselRef}
+                tabIndex={0}
+                style={{
+                  outline: 'none',
+                  width: '100%',
+                  maxWidth: 900,
+                  margin: '0 auto',
+                  minHeight: 320,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  position: 'relative',
+                  userSelect: isDragging ? 'none' : 'auto',
+                  touchAction: 'pan-x',
+                }}
+                onMouseDown={onDragStart}
+                onMouseMove={isDragging ? onDragMove : undefined}
+                onMouseUp={onDragEnd}
+                onMouseLeave={isDragging ? onDragEnd : undefined}
+                onTouchStart={onDragStart}
+                onTouchMove={isDragging ? onDragMove : undefined}
+                onTouchEnd={onDragEnd}
+                aria-label="Main navigation carousel"
+              >
+                <div className="carousel-inner" style={{
+                  width: '100%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  position: 'relative',
+                  height: 320,
+                  perspective: 1200,
+                  perspectiveOrigin: '50% 50%',
+                  gap: 0,
+                }}>
+                  {cards}
                 </div>
+                {/* Carousel navigation arrows */}
+                <button
+                  className="carousel-arrow carousel-arrow-left"
+                  aria-label="Previous"
+                  onClick={goLeft}
+                  tabIndex={0}
+                  type="button"
+                >
+                  <span aria-hidden="true">‹</span>
+                </button>
+                <button
+                  className="carousel-arrow carousel-arrow-right"
+                  aria-label="Next"
+                  onClick={goRight}
+                  tabIndex={0}
+                  type="button"
+                >
+                  <span aria-hidden="true">›</span>
+                </button>
               </div>
               <div className="mt-8 text-center text-neutral-400 text-sm max-w-lg">
                 <span className="inline-block bg-white/10 border border-white/20 rounded-lg px-4 py-2 shadow">
@@ -332,50 +407,107 @@ function NavigationHub() {
               </div>
             </div>
             <style>{`
-              .perspective {
+              .carousel-outer {
+                position: relative;
+                width: 100%;
+                max-width: 900px;
+                margin: 0 auto;
+                min-height: 320px;
+                outline: none;
+              }
+              .carousel-inner {
+                width: 100%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                position: relative;
+                height: 320px;
                 perspective: 1200px;
+                perspective-origin: 50% 50%;
+                gap: 0;
               }
-              .transform-style-preserve-3d {
-                transform-style: preserve-3d;
+              .carousel-card {
+                background: linear-gradient(135deg, #34d39922 0%, #a78bfa22 100%);
+                border: 1.5px solid #fff3;
+                border-radius: 1.25rem;
+                min-width: 220px;
+                max-width: 260px;
+                width: 240px;
+                height: 300px;
+                margin: 0 0.5rem;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                text-align: center;
+                font-family: inherit;
+                cursor: pointer;
+                transition: box-shadow 0.3s, border 0.3s, background 0.3s;
+                will-change: transform, opacity, filter;
+                outline: none;
+                user-select: none;
               }
-              /* Hide scrollbar for all browsers */
-              .scrollbar-hide {
-                scrollbar-width: none;
-                -ms-overflow-style: none;
+              .carousel-card-center {
+                background: linear-gradient(135deg, #34d39944 0%, #a78bfa44 100%);
+                border: 2.5px solid #34d399cc;
+                box-shadow: 0 8px 32px 0 rgba(52,211,153,0.18), 0 2px 8px 0 rgba(168,139,250,0.12);
+                z-index: 2;
               }
-              .scrollbar-hide::-webkit-scrollbar {
-                display: none;
+              .carousel-arrow {
+                position: absolute;
+                top: 50%;
+                transform: translateY(-50%);
+                background: linear-gradient(135deg, #23272a 60%, #44454a 100%);
+                border: 2px solid #34d39944;
+                color: #a7f3d0;
+                font-size: 2.5rem;
+                font-weight: bold;
+                border-radius: 50%;
+                width: 48px;
+                height: 48px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                z-index: 10;
+                opacity: 0.85;
+                transition: background 0.2s, color 0.2s, border 0.2s;
+                box-shadow: 0 2px 8px 0 rgba(52,211,153,0.08);
+                outline: none;
+                user-select: none;
               }
-              /* Ultra smooth, card-height, centered, rotated fade overlays */
-              .fade-left-hub {
-                background: linear-gradient(
-                  270deg,
-                  rgba(32,32,40,0.38) 0%,
-                  rgba(32,32,40,0.28) 20%,
-                  rgba(32,32,40,0.18) 40%,
-                  rgba(32,32,40,0.10) 60%,
-                  rgba(32,32,40,0.04) 80%,
-                  rgba(32,32,40,0.00) 100%
-                );
-                backdrop-filter: blur(2.5px);
-                -webkit-backdrop-filter: blur(2.5px);
-                border-top-left-radius: 18px;
-                border-bottom-left-radius: 18px;
+              .carousel-arrow-left {
+                left: -32px;
               }
-              .fade-right-hub {
-                background: linear-gradient(
-                  90deg,
-                  rgba(32,32,40,0.38) 0%,
-                  rgba(32,32,40,0.28) 20%,
-                  rgba(32,32,40,0.18) 40%,
-                  rgba(32,32,40,0.10) 60%,
-                  rgba(32,32,40,0.04) 80%,
-                  rgba(32,32,40,0.00) 100%
-                );
-                backdrop-filter: blur(2.5px);
-                -webkit-backdrop-filter: blur(2.5px);
-                border-top-right-radius: 18px;
-                border-bottom-right-radius: 18px;
+              .carousel-arrow-right {
+                right: -32px;
+              }
+              .carousel-arrow:hover, .carousel-arrow:focus {
+                background: #34d399;
+                color: #fff;
+                border: 2px solid #a78bfa;
+                outline: none;
+              }
+              @media (max-width: 700px) {
+                .carousel-card, .carousel-card-center {
+                  min-width: 160px;
+                  max-width: 180px;
+                  width: 170px;
+                  height: 200px;
+                }
+                .carousel-arrow, .carousel-arrow-left, .carousel-arrow-right {
+                  width: 36px;
+                  height: 36px;
+                  font-size: 1.5rem;
+                  left: -18px;
+                  right: -18px;
+                }
+                .carousel-inner {
+                  height: 200px;
+                }
+                .carousel-outer {
+                  min-height: 200px;
+                }
               }
             `}</style>
           </section>
