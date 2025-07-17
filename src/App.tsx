@@ -94,7 +94,7 @@ function CompetitiveMatrixApp() {
       if (prev.some((p) => p.id === product.id)) {
         return prev.filter((p) => p.id !== product.id)
       }
-      if (prev.length >= 7) return prev
+      // No cap: allow selecting all products
       return [...prev, product]
     })
   }

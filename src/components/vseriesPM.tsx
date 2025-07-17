@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom'
 import NavDropdown from './NavDropdown'
 import { useAutoLogout } from '../hooks/useAutoLogout'
 import { Analytics } from '@vercel/analytics/react'
+import { CheckCircle, Circle } from 'lucide-react'
 
 const LOGIN_KEY = 'mconnect_logged_in_user'
 const AUTO_LOGOUT_MS = 10 * 60 * 1000
@@ -59,7 +60,7 @@ export default function VSeriesPMPage() {
       if (prev.some((p) => p.id === product.id)) {
         return prev.filter((p) => p.id !== product.id)
       }
-      if (prev.length >= 7) return prev
+      // No cap: allow selecting all products
       return [...prev, product]
     })
   }
@@ -137,24 +138,18 @@ export default function VSeriesPMPage() {
         </div>
       )}
       <main className="flex-1 w-full relative z-10">
-        <div className="max-w-6xl mx-auto w-full">
+        <div className="max-w-5xl mx-auto w-full">
           <section className="relative py-4 px-1">
             <h2 className="text-2xl font-extrabold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-violet-400 tracking-tight text-center drop-shadow-[0_2px_8px_rgba(16,185,129,0.15)]">
               V-Series PM Comparison Matrix
             </h2>
             <div className="text-xs text-neutral-300 text-center mb-4 font-medium tracking-wide">
-              Explore and compare flagship vital signs patient monitors from leading manufacturers.
+              Explore and compare flagship vital signs patient monitors from main manufacturers.
             </div>
             <div className="mb-8">
               <div className="max-w-5xl mx-auto">
-                <div className="mb-4">
-                  <span className="text-xs text-neutral-400">
-                    Select products to compare
-                  </span>
-                </div>
+                {/* Removed "Select products to compare" text */}
                 <div className="flex flex-col gap-3 items-center">
-                  {/* Reuse Catalogue UI if needed, or just show Compare */}
-                  {/* For simplicity, just use Compare with selection */}
                   <div>
                     <ul className="flex flex-row flex-wrap gap-3 justify-center">
                       {products.map((product) => {
@@ -183,6 +178,13 @@ export default function VSeriesPMPage() {
                             }}
                             aria-pressed={isSelected}
                           >
+                            <span className="mb-1">
+                              {isSelected ? (
+                                <CheckCircle className="w-6 h-6 text-emerald-400 drop-shadow-[0_0_6px_#34d399]" />
+                              ) : (
+                                <Circle className="w-6 h-6 text-neutral-400" />
+                              )}
+                            </span>
                             <div className="font-bold text-neutral-100 text-xs sm:text-sm text-center w-full whitespace-normal leading-tight">
                               {product.name}
                             </div>

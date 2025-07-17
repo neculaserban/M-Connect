@@ -3,13 +3,13 @@ import { useNavigate, useLocation } from 'react-router-dom'
 
 // Add V-Series PM and TLA IVD to the navigation
 const NAV_ITEMS = [
-  { label: 'Competitive Matrix', path: '/competitive' },
-  { label: 'V-Series PM Matrix', path: '/vseriespm' },
-  { label: 'TLA IVD Matrix', path: '/tlaivd' },
-  { label: 'Compatibility Matrix', path: '/comparison-matrix' },
   { label: 'Specification Generator', path: '/specconf' },
+	{ label: 'M-Connect Matrix', path: '/competitive' },
+	{ label: 'V-Series PM Matrix', path: '/vseriespm' },
+  { label: 'Compatibility Matrix', path: '/comparison-matrix' },
   { label: 'Value Proposition', path: '/valueprop' },
   { label: 'ChatBot (soon)', path: '/chatbot' },
+	{ label: 'TLA IVD Matrix', path: '/tlaivd' },
 ]
 
 export default function NavDropdown() {

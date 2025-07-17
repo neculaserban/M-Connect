@@ -33,7 +33,7 @@ export default function Catalogue({ onSelect, selected, products }: Props) {
     <section className="relative py-4 px-1">
       <div className="relative z-10">
         <h2 className="text-2xl font-extrabold mb-1 text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-violet-400 tracking-tight text-center drop-shadow-[0_2px_8px_rgba(16,185,129,0.15)]">
-          M-Connect Competitive Matrix
+          M-Connect Comparison Matrix
         </h2>
         <div className="text-xs text-neutral-300 text-center mb-4 font-medium tracking-wide">
           Disclaimer: Competition details are subject to change and may not reflect the most current information.

@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom'
 import NavDropdown from './NavDropdown'
 import { useAutoLogout } from '../hooks/useAutoLogout'
 import { Analytics } from '@vercel/analytics/react'
+import { CheckCircle, Circle } from 'lucide-react'
 
 const LOGIN_KEY = 'mconnect_logged_in_user'
 const AUTO_LOGOUT_MS = 10 * 60 * 1000
@@ -58,7 +59,7 @@ export default function TLAIVDPage() {
       if (prev.some((p) => p.id === product.id)) {
         return prev.filter((p) => p.id !== product.id)
       }
-      if (prev.length >= 7) return prev
+      // No cap: allow selecting all products
       return [...prev, product]
     })
   }
@@ -146,11 +147,7 @@ export default function TLAIVDPage() {
             </div>
             <div className="mb-8">
               <div className="max-w-5xl mx-auto">
-                <div className="mb-4">
-                  <span className="text-xs text-neutral-400">
-                    Select products to compare
-                  </span>
-                </div>
+                {/* Removed "Select products to compare" text */}
                 <div className="flex flex-col gap-3 items-center">
                   <div>
                     <ul className="flex flex-row flex-wrap gap-3 justify-center">
@@ -180,6 +177,13 @@ export default function TLAIVDPage() {
                             }}
                             aria-pressed={isSelected}
                           >
+                            <span className="mb-1">
+                              {isSelected ? (
+                                <CheckCircle className="w-6 h-6 text-emerald-400 drop-shadow-[0_0_6px_#34d399]" />
+                              ) : (
+                                <Circle className="w-6 h-6 text-neutral-400" />
+                              )}
+                            </span>
                             <div className="font-bold text-neutral-100 text-xs sm:text-sm text-center w-full whitespace-normal leading-tight">
                               {product.name}
                             </div>
