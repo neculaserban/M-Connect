@@ -1,9 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 
-// Update the path for Competitive Matrix to '/competitive'
+// Add V-Series PM and TLA IVD to the navigation
 const NAV_ITEMS = [
   { label: 'Competitive Matrix', path: '/competitive' },
+  { label: 'V-Series PM Matrix', path: '/vseriespm' },
+  { label: 'TLA IVD Matrix', path: '/tlaivd' },
   { label: 'Compatibility Matrix', path: '/comparison-matrix' },
   { label: 'Specification Generator', path: '/specconf' },
   { label: 'Value Proposition', path: '/valueprop' },

@@ -20,6 +20,20 @@ const PAGES = [
     desc: 'Compare Mindray and competitor products side by side.',
   },
   {
+    key: 'vseriespm',
+    label: 'V-Series PM Matrix',
+    path: '/vseriespm',
+    icon: '🩺',
+    desc: 'Compare flagship vital signs patient monitors (V-Series).',
+  },
+  {
+    key: 'tlaivd',
+    label: 'TLA IVD Matrix',
+    path: '/tlaivd',
+    icon: '🧪',
+    desc: 'Compare TLA IVD products and features.',
+  },
+  {
     key: 'compatibility',
     label: 'Compatibility Matrix',
     path: '/comparison-matrix',

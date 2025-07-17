@@ -3,7 +3,7 @@ import Catalogue from './components/Catalogue'
 import Compare from './components/Compare'
 import LoginForm from './components/LoginForm'
 import { Product } from './data/products'
-import { fetchProducts, ProductsAndFeatures, FeatureRow } from './data/fetchProducts'
+import { fetchProductsFromSheet, ProductsAndFeatures, FeatureRow } from './data/fetchProductsGeneric'
 import { fetchUsers, User } from './data/fetchUsers'
 import { BrowserRouter as Router, Routes, Route, useNavigate, Navigate } from 'react-router-dom'
 import SpecConf from './SpecConf'
@@ -14,6 +14,8 @@ import NavigationHub from './NavigationHub'
 import { useAutoLogout } from './hooks/useAutoLogout'
 import { Analytics } from '@vercel/analytics/react'
 import NavDropdown from './components/NavDropdown'
+import VSeriesPMPage from './components/vseriesPM'
+import TLAIVDPage from './components/TLAIVD'
 
 const LOGIN_KEY = 'mconnect_logged_in_user'
 const AUTO_LOGOUT_MS = 10 * 60 * 1000; // 10 minutes
@@ -40,7 +42,7 @@ function CompetitiveMatrixApp() {
   useEffect(() => {
     setLoading(true)
     setError(null)
-    fetchProducts()
+    fetchProductsFromSheet('Sheet1')
       .then(({ products, featureRows }: ProductsAndFeatures) => {
         setProducts(products)
         setFeatureRows(featureRows)
@@ -204,6 +206,8 @@ export default function App() {
         {/* NavigationHub is now the main page */}
         <Route path="/" element={<NavigationHub />} />
         <Route path="/competitive" element={<CompetitiveMatrixApp />} />
+        <Route path="/vseriespm" element={<VSeriesPMPage />} />
+        <Route path="/tlaivd" element={<TLAIVDPage />} />
         <Route path="/specconf" element={<SpecConf />} />
         <Route path="/valueprop" element={<ValueProp />} />
         <Route path="/comparison-matrix" element={<CompatibilityMatrix />} />

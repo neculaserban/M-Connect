@@ -1,7 +1,7 @@
 import { Product } from '../data/products'
 import { X } from 'lucide-react'
 import React, { useRef, useEffect, useState, useMemo } from 'react'
-import type { FeatureRow } from '../data/fetchProducts'
+import type { FeatureRow } from '../data/fetchProductsGeneric'
 
 type Props = {
   products: Product[]
